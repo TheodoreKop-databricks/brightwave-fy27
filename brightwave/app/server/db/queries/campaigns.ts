@@ -9,6 +9,7 @@
  */
 import { sql } from 'drizzle-orm';
 import type { AppDb } from '../index.js';
+import { campaignActions, workflowEvents, type AuditEntry } from '../schema.js';
 import type { ActionOption } from '../synced-schema.js';
 
 // ── Shared row shapes (mirrored in client/src/shared/types.ts) ───────────────
@@ -536,6 +537,65 @@ export async function getRecommendation(db: AppDb, campaignId: string): Promise<
 
 // ── Write helper (Layer 3 — Act) ──────────────────────────────────────────────
 
-export const recordCampaignAction = async () => {
-  throw new Error('Not implemented — Build 3 Act task');
-};
+/**
+ * Record an approved campaign action — the human-in-the-loop write. ONE
+ * transaction: (1) insert the approved action into app.campaign_actions_app
+ * (status='approved', approved_by = OBO userEmail, append-only audit entry,
+ * decided_at set), and (2) insert a `decision` row into app.workflow_events
+ * (actor = approver, campaign_id, action_id → the new action, payload with
+ * action_type + predicted_roas_lift). Closes the loop: the Campaign Desk queue
+ * LEFT JOINs the latest action → CMP-0000214 flips to "action taken".
+ */
+export async function recordCampaignAction(
+  db: AppDb,
+  args: {
+    campaignId: string;
+    actionType: ActionType;
+    targetCampaignId: string | null;
+    draftedBrief: string;
+    predictedRoasLift: number | null;
+    userEmail: string;
+  },
+): Promise<{ actionId: string; eventId: string }> {
+  return db.transaction(async (tx) => {
+    const now = new Date();
+    const audit: AuditEntry = {
+      at: now.toISOString(),
+      by: args.userEmail,
+      action: 'approved',
+      notes: 'Campaign action recorded',
+      tool: 'execute_campaign_action',
+    };
+    const [action] = await tx
+      .insert(campaignActions)
+      .values({
+        campaignId: args.campaignId,
+        actionType: args.actionType,
+        targetCampaignId: args.targetCampaignId,
+        draftedBrief: args.draftedBrief,
+        predictedRoasLift: args.predictedRoasLift,
+        status: 'approved',
+        approvedBy: args.userEmail,
+        auditTrail: [audit],
+        decidedAt: now,
+      })
+      .returning({ id: campaignActions.id });
+
+    const [event] = await tx
+      .insert(workflowEvents)
+      .values({
+        eventType: 'decision',
+        actor: args.userEmail,
+        campaignId: args.campaignId,
+        actionId: action.id,
+        payload: {
+          action_type: args.actionType,
+          predicted_roas_lift: args.predictedRoasLift,
+          target_campaign_id: args.targetCampaignId,
+        },
+      })
+      .returning({ id: workflowEvents.id });
+
+    return { actionId: action.id, eventId: event.id };
+  });
+}

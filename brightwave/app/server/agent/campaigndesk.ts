@@ -51,6 +51,8 @@ import {
   getCampaign,
   getRecommendation,
   searchCreatives as searchCreativesIndex,
+  recordCampaignAction,
+  type ActionType,
 } from '../db/queries/campaigns.js';
 // The data-backend helpers. Both are config-driven and share the same
 // DataCallResult shape + ToolProgressEvent stream, so the `ask_data` tool
@@ -294,11 +296,39 @@ function makeTools(ctx: AgentContext): Tool[] {
         .nullable()
         .describe('Predicted ROAS lift from the model, if available'),
     }),
-    execute: async () => {
-      throw new Error(
-        'Not implemented — this is your Build 3 Act task; see APP_WORKSHOP.md',
-      );
-    },
+    execute: async ({
+      campaign_id,
+      action_type,
+      target_campaign_id,
+      drafted_brief,
+      predicted_roas_lift,
+    }) =>
+      mlflow.withSpan(
+        async () => {
+          const { actionId, eventId } = await recordCampaignAction(ctx.db, {
+            campaignId: campaign_id,
+            actionType: action_type as ActionType,
+            targetCampaignId: target_campaign_id,
+            draftedBrief: drafted_brief,
+            predictedRoasLift: predicted_roas_lift,
+            userEmail: ctx.userEmail,
+          });
+          return {
+            recorded: true,
+            action_id: actionId,
+            decision_event_id: eventId,
+            campaign_id,
+            action_type,
+            approved_by: ctx.userEmail,
+            predicted_roas_lift,
+          };
+        },
+        {
+          name: 'execute_campaign_action',
+          spanType: mlflow.SpanType.TOOL,
+          inputs: { campaign_id, action_type },
+        },
+      ),
   });
 
   // find_underperformer / rank_actions / search_creatives / execute_campaign_action
