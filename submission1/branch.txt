@@ -1,3 +1,9 @@
+DEVELOPMENT BRANCH (off main): dev-tkop
+CREATION CAPTURED IN CODE:  git checkout -b dev-tkop main    (see create_branches.sh, committed)
+LAKEBASE EQUIVALENT:        databricks postgres create-branch projects/brightwave-campaign-desk dev-tkop  (off the "production" root branch)
+NOTE: this Lakebase project's root/primary branch is named "production" — dev-tkop is the development branch created off it (== off main). The Git branch dev-tkop is created off main and merged back (git_history.txt).
+
+====================================================================================
 BUILD 1 · EVIDENCE #4 — development branch (off main) and the changes made on it
 ====================================================================================
 
