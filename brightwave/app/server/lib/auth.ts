@@ -26,3 +26,23 @@ export async function authHeaders(req: Request): Promise<Headers> {
   await client.config.authenticate(h);
   return h;
 }
+
+/**
+ * ALWAYS the app service principal's token (never the user's OBO token) — via
+ * the SDK auth chain: the app SP when deployed, the CLI profile locally.
+ *
+ * Use this for the agent's outbound serving-endpoint (model) + Genie calls.
+ * The Databricks Apps OBO token only carries the scopes the *user* has consented
+ * to (model-serving / genie), and that consent doesn't reliably re-propagate
+ * when scopes change — so OBO 403s "Invalid scope, required scopes: model-serving".
+ * The SP token has full API access and needs no per-user consent. Per-user
+ * attribution is preserved separately: writes stamp `approved_by = ctx.userEmail`
+ * (from the request identity header), and MLflow traces carry the user email —
+ * neither depends on the token used for the raw inference call.
+ */
+export async function serviceAuthHeaders(): Promise<Headers> {
+  const h = new Headers();
+  const { client } = getExecutionContext();
+  await client.config.authenticate(h);
+  return h;
+}

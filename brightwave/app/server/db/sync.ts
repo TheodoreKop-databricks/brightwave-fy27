@@ -16,15 +16,16 @@ import type { AppDb } from './index.js';
  * wiped — the synced.* mirrors are untouched (and cannot be truncated anyway).
  */
 export async function resetWritableTables(db: AppDb): Promise<void> {
+  // DELETE (not TRUNCATE): the app SP has DELETE granted on app.*, but TRUNCATE
+  // requires table ownership (which the SP lacks on this shared Lakebase). FK
+  // order: feedback → messages → conversations; the two action tables stand alone.
   await db.transaction(async (tx) => {
-    await tx.execute(sql`TRUNCATE TABLE app.feedback RESTART IDENTITY CASCADE`);
-    await tx.execute(sql`TRUNCATE TABLE app.messages RESTART IDENTITY CASCADE`);
-    await tx.execute(sql`TRUNCATE TABLE app.conversations RESTART IDENTITY CASCADE`);
-    await tx.execute(sql`TRUNCATE TABLE app.campaign_actions_app RESTART IDENTITY CASCADE`);
-    // workflow_events (added in Layer 1) — truncate if present so a reset also
-    // clears the observability trail. IF EXISTS keeps this safe pre-Layer-1.
+    await tx.execute(sql`DELETE FROM app.feedback`);
+    await tx.execute(sql`DELETE FROM app.messages`);
+    await tx.execute(sql`DELETE FROM app.conversations`);
+    await tx.execute(sql`DELETE FROM app.campaign_actions_app`);
     await tx.execute(
-      sql`DO $$ BEGIN IF to_regclass('app.workflow_events') IS NOT NULL THEN TRUNCATE TABLE app.workflow_events RESTART IDENTITY CASCADE; END IF; END $$;`,
+      sql`DO $$ BEGIN IF to_regclass('app.workflow_events') IS NOT NULL THEN DELETE FROM app.workflow_events; END IF; END $$;`,
     );
   });
 }

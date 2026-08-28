@@ -42,7 +42,7 @@ import type { Tool } from '@openai/agents';
 import { loggedTool as tool } from './tools/logged-tool.js';
 import * as mlflow from 'mlflow-tracing';
 import { z } from 'zod';
-import { authHeaders } from '../lib/auth.js';
+import { serviceAuthHeaders } from '../lib/auth.js';
 import type { AppDb } from '../db/index.js';
 // Build-2 read helpers (Assist) — reads over synced.* / write to app.*.
 import {
@@ -377,7 +377,12 @@ MODE C — act (only after the user approves, e.g. "yes, replicate the winner"):
 Rules: never call execute_campaign_action before explicit approval. Ground every number in a tool result, not memory. Keep answers tight and decision-oriented — Priya wants the move, the why, and the projected value.`;
 
 export async function configureAgentsSdk(ctx: AgentContext): Promise<void> {
-  const headers = await authHeaders(ctx.req);
+  // Use the app SERVICE PRINCIPAL token (not the user OBO token) for the model
+  // endpoint: OBO carries only user-consented scopes and 403s "required scopes:
+  // model-serving" when consent hasn't propagated. The SP token has full API
+  // access. Per-user attribution is preserved elsewhere (approved_by=userEmail,
+  // MLflow trace user), not via this inference call's token.
+  const headers = await serviceAuthHeaders();
   const bearer = headers.get('Authorization')?.replace(/^Bearer /, '') ?? '';
   // Custom fetch: fresh TCP connection per call (avoids the stale-socket 502
   // after a long ask_data hop) + strip the >64-char `input[*].id` the SDK
