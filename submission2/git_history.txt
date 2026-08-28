@@ -1,4 +1,7 @@
-* 1a8673b (HEAD -> dev-tkop) Fix: make idempotent schema DDL tolerant of shared-DB table ownership
+* 7238c65 (HEAD -> dev-tkop) Fix: neutralize .databrickscfg PAT for MLflow exporter (oauth+pat conflict)
+* eafa046 Fix: agent uses SP token for model + Genie (unblocks deployed 403); reset via DELETE
+* a5a9114 Evidence: refresh git_history.txt (final layer-by-layer graph)
+* 1a8673b Fix: make idempotent schema DDL tolerant of shared-DB table ownership
 * 36f354c Fix (post-review): scatter perf/data, Campaign Desk fetch split, generic Home + correct agent-loop diagram
 * 9648d20 Layer 3: Act — execute_campaign_action + recordCampaignAction (closed loop)
 * befa67c Layer 1 refactor: drop the ORM migrator — idempotent Lakebase DDL instead

@@ -1,0 +1,51 @@
+{
+  "evidence": "Build 2 · Assist — creative retrieval served by the Build-1 Lakebase Search index (BM25). NOT a separate store.",
+  "captured_at": "2026-08-28",
+  "index": {
+    "table": "app.creatives_search",
+    "rows_indexed": 400,
+    "index_name": "app.creatives_search_bm25",
+    "index_type": "lakebase_bm25",
+    "indexed_column": "search_tsv (tsvector of creative_name + angle + description)",
+    "created_in": "Build 1 (Lakebase Search enabled at project level; index built over the synced creative catalog)",
+    "operator": "<@>  (Lakebase BM25 distance; to_bm25query binds the query to this index; ORDER BY ASC ranks best matches first — negated BM25 score)"
+  },
+  "used_by": {
+    "app_tool": "search_creatives",
+    "source_read": "brightwave/app/server/db/queries/campaigns.ts → searchCreatives()",
+    "source_tool": "brightwave/app/server/agent/campaigndesk.ts → tool('search_creatives')"
+  },
+  "explain_plan": [
+    "Limit  (cost=0.00..1.16 rows=6 width=18)",
+    "  ->  Index Scan using creatives_search_bm25 on creatives_search  (cost=0.00..77.00 rows=400 width=18)",
+    "        Order By: (search_tsv <@> '(\"''social'':2 ''testimoni'':1\",app.creatives_search_bm25)'::bm25query_tsvector)"
+  ],
+  "explain_note": "Index Scan using creatives_search_bm25 — the query is served by the Build-1 BM25 index, not a sequential scan and not an external/separate search store.",
+  "queries": [
+    {
+      "q": "testimonial social apparel gen_z",
+      "limit": 6,
+      "purpose": "hero what-if — find the transferable winning creative to ground the replicate brief for CMP-0000214 (winner CMP-0000634: social + testimonial)",
+      "results": [
+        {"creative_id": "CRE-00305", "creative_name": "testimonial video 305",   "creative_type": "video",    "angle": "testimonial", "description": "testimonial video creative. Customer testimonial; strong trust signal for consideration.",    "bm25_score": -2.3537},
+        {"creative_id": "CRE-00135", "creative_name": "testimonial video 135",   "creative_type": "video",    "angle": "testimonial", "description": "testimonial video creative. Customer testimonial; strong trust signal for consideration.",    "bm25_score": -2.3537},
+        {"creative_id": "CRE-00148", "creative_name": "testimonial image 148",   "creative_type": "image",    "angle": "testimonial", "description": "testimonial image creative. Customer testimonial; strong trust signal for consideration.",    "bm25_score": -2.3537},
+        {"creative_id": "CRE-00388", "creative_name": "testimonial carousel 388","creative_type": "carousel", "angle": "testimonial", "description": "testimonial carousel creative. Customer testimonial; strong trust signal for consideration.", "bm25_score": -2.3537},
+        {"creative_id": "CRE-00035", "creative_name": "testimonial carousel 35", "creative_type": "carousel", "angle": "testimonial", "description": "testimonial carousel creative. Customer testimonial; strong trust signal for consideration.", "bm25_score": -2.3537},
+        {"creative_id": "CRE-00344", "creative_name": "testimonial carousel 344","creative_type": "carousel", "angle": "testimonial", "description": "testimonial carousel creative. Customer testimonial; strong trust signal for consideration.", "bm25_score": -2.3537}
+      ]
+    },
+    {
+      "q": "lifestyle video",
+      "limit": 5,
+      "purpose": "second query — shows BM25 ranking differentiates by term match (distinct score band from the testimonial query)",
+      "results": [
+        {"creative_id": "CRE-00024", "creative_name": "lifestyle video 24",  "angle": "lifestyle", "bm25_score": -3.7656},
+        {"creative_id": "CRE-00223", "creative_name": "lifestyle video 223", "angle": "lifestyle", "bm25_score": -3.7656},
+        {"creative_id": "CRE-00238", "creative_name": "lifestyle video 238", "angle": "lifestyle", "bm25_score": -3.7656},
+        {"creative_id": "CRE-00252", "creative_name": "lifestyle video 252", "angle": "lifestyle", "bm25_score": -3.7656},
+        {"creative_id": "CRE-00160", "creative_name": "lifestyle video 160", "angle": "lifestyle", "bm25_score": -3.7656}
+      ]
+    }
+  ]
+}

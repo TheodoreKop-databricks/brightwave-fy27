@@ -1,0 +1,63 @@
+# Databricks App manifest — read by the runtime when the container starts.
+#
+# This is the TEMPLATE app.yaml. scripts/finalize_app.sh renders the deployed
+# app.yaml from it: keeps this header + command + scopes + binding-derived env,
+# and appends the plain-value env vars (DEMO_CATALOG, DASHBOARD_ID,
+# GENIE_SPACE_ID, …) harvested from the setup job's export_resources output.
+# Plain values live in exactly one place (finalize_app.sh), assembled after
+# the job runs — the bundle can't know the Genie/KA/MAS IDs at deploy time.
+# Binding-derived vars (DATABRICKS_WAREHOUSE_ID, LAKEBASE_ENDPOINT) stay here.
+#
+# Lifecycle on the Apps container (in order):
+#   1. `npm install` against the shipped lockfile.
+#   2. `npm run build` (no-op echo — real build runs locally via
+#      scripts/build-app.sh and dist/ ships via DAB sync.include).
+#   3. The `command:` below starts the server.
+
+command: ['node', '--env-file-if-exists=.env', 'dist/server.js']
+
+# Scopes minted into the user's OBO token (x-forwarded-access-token).
+user_authorization:
+  scopes:
+    - model-serving      # OpenAI Agents loop hits /serving-endpoints/responses
+    - genie              # ask_data → Genie space
+    - sql                # warehouse-backed analytics queries
+    - postgres           # Lakebase pool
+    - ai-gateway         # AI Gateway routing for the Responses API
+    - catalog.catalogs:read
+    - catalog.schemas:read
+    - catalog.tables:read
+
+env:
+  - name: NODE_ENV
+    value: production
+
+  # ── Interactive-deploy env (plain values) ───────────────────────────
+  # This app is deployed interactively (`databricks apps deploy`, no DAB
+  # binding), so `valueFrom:` refs can't resolve — the resource vars are
+  # plain values here (and mirrored in the shipped .env, which the command
+  # loads via --env-file-if-exists). PGUSER is NOT set: getUsernameWithApiLookup
+  # falls back to the app SP's DATABRICKS_CLIENT_ID. Lakebase auth is OAuth
+  # (LAKEBASE_ENDPOINT → generate-database-credential); no PGPASSWORD.
+  - name: DATABRICKS_WAREHOUSE_ID
+    value: '01083f0176292242'
+  - name: WAREHOUSE_ID
+    value: '01083f0176292242'
+  - name: DEMO_CATALOG
+    value: 'brightwave_techsummit27_catalog'
+  - name: DEMO_SCHEMA
+    value: 'brightwave'
+  - name: DASHBOARD_ID
+    value: '01f1a26fed4516b98df68d6ff9e84d65'
+  - name: GENIE_SPACE_ID
+    value: '01f1a26fadc51614a203f762ffb368d4'
+  - name: LAKEBASE_ENDPOINT
+    value: 'projects/brightwave-campaign-desk/branches/production/endpoints/primary'
+  - name: PGHOST
+    value: 'ep-delicate-mountain-d8kizg3e.database.us-east-2.cloud.databricks.com'
+  - name: PGDATABASE
+    value: 'brightwave_lakebase_tkop'
+  - name: PGPORT
+    value: '5432'
+  - name: PGSSLMODE
+    value: 'require'
