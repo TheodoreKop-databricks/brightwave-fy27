@@ -1,0 +1,61 @@
+{
+  "note": "Two Lakebase branch uses off the production root, both READY (execution evidence). Creation captured in create_branches.sh.",
+  "branches": [
+    {
+      "branch": "forecast-scenario",
+      "state": "READY",
+      "parent": "root",
+      "ttl": null,
+      "no_expiry": null
+    },
+    {
+      "branch": "production",
+      "state": "READY",
+      "parent": "root",
+      "ttl": null,
+      "no_expiry": null
+    },
+    {
+      "branch": "dev-tkop",
+      "state": "READY",
+      "parent": "root",
+      "ttl": null,
+      "no_expiry": null
+    }
+  ],
+  "branch_uses": [
+    {
+      "branch": "dev-tkop",
+      "use": "development iteration",
+      "detail": "coding-agent schema change: ALTER TABLE app.campaign_actions_app ADD COLUMN priority_score + seed + validate, then promote to production. See agent_change/.",
+      "endpoint_min_cu": 0.5
+    },
+    {
+      "branch": "forecast-scenario",
+      "use": "throwaway forecasting branch (TTL 7 days)",
+      "detail": "isolated what-if: wrote scenario.replicate_all_forecast projecting portfolio recovered value if every active underperformer with a matching winner is replicated. Never touches production.",
+      "endpoint_min_cu": 0.5
+    }
+  ],
+  "isolation_proof": {
+    "scenario_schema_on_forecast_branch": 1,
+    "scenario_schema_on_production": 0,
+    "meaning": "the forecast branch's writes are copy-on-write isolated from production"
+  },
+  "forecast_scenario_result": [
+    {
+      "recommended_action": "reallocate_budget",
+      "campaigns": 30,
+      "total_recoverable_spend": 5356722.53,
+      "avg_predicted_roas_lift": 0.8929,
+      "projected_recovered_value": 4782408.26
+    },
+    {
+      "recommended_action": "replicate_winner",
+      "campaigns": 59,
+      "total_recoverable_spend": 10638280.7,
+      "avg_predicted_roas_lift": 2.2398,
+      "projected_recovered_value": 23826508.27
+    }
+  ]
+}

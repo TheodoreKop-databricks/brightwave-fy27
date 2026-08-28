@@ -1,0 +1,104 @@
+BUILD 1 · EVIDENCE #4 — development branch (off main) and the changes made on it
+====================================================================================
+
+DEVELOPMENT BRANCH (off main)
+-----------------------------
+  Development branch name : dev-tkop
+  Off main                : yes — dev-tkop branches off `main` (Git) and off the `production`
+                            root branch (Lakebase). Merged back after promotion.
+
+  Branch creation captured in code (also in create_branches.sh):
+
+  # Git — development branch off main:
+  git checkout -b dev-tkop main
+
+  # Lakebase — copy-on-write development branch off the root branch:
+  databricks postgres create-branch projects/brightwave-campaign-desk dev-tkop \
+    --profile fe-sandbox-brightwave-techsummit27 \
+    --json '{"spec":{"source_branch":"projects/brightwave-campaign-desk/branches/production","no_expiry":true}}'
+
+  Execution evidence: git_history.txt shows dev-tkop off main + the merge; branches_result.json
+  shows the Lakebase dev-tkop branch READY.
+
+Lakebase development branch
+---------------------------
+  Project        : brightwave-campaign-desk
+  Branch         : dev-tkop            (copy-on-write branch off the root "production" branch)
+  Endpoint       : ep-restless-tooth-d8b0vmys.database.us-east-2.cloud.databricks.com
+  Database       : brightwave_lakebase_tkop
+
+  Created with:
+    databricks postgres create-branch projects/brightwave-campaign-desk dev-tkop \
+      --json '{"spec":{"source_branch":"projects/brightwave-campaign-desk/branches/production","no_expiry":true}}'
+
+Changes made on dev-tkop (isolated from production until promoted)
+------------------------------------------------------------------
+1. DDL / migration  (agent_change/001_add_priority_score.sql):
+     ALTER TABLE app.campaign_actions_app
+       ADD COLUMN IF NOT EXISTS priority_score DOUBLE PRECISION;
+     COMMENT ON COLUMN app.campaign_actions_app.priority_score IS
+       'Agent-computed priority score (0-1) combining predicted ROAS lift, spend at risk, and time sensitivity.';
+
+2. Seed data (rank two proposed actions by the new column):
+     INSERT INTO app.campaign_actions_app
+       (campaign_id, action_type, target_campaign_id, drafted_brief,
+        predicted_roas_lift, status, priority_score, audit_trail)
+     VALUES
+       ('CMP-0000214','replicate_winner','CMP-0000634','...',2.234,'proposed',0.92, ...),
+       ('CMP-0000610','reallocate_budget','CMP-0000501','...',0.85,'proposed',0.67, ...);
+
+Validation on dev-tkop (isolation confirmed)
+---------------------------------------------
+  SELECT campaign_id, action_type, status, priority_score
+  FROM app.campaign_actions_app WHERE priority_score IS NOT NULL ORDER BY priority_score DESC;
+
+    campaign_id | action_type       | status   | priority_score
+    ------------+-------------------+----------+---------------
+    CMP-0000214 | replicate_winner  | proposed |          0.92
+    CMP-0000610 | reallocate_budget | proposed |          0.67
+
+  Total rows on dev-tkop: 5 (2 new seed rows carry priority_score; 3 pre-existing rows are NULL —
+  backward compatible). While dev-tkop held the change, production was unaffected.
+
+Promotion (see agent_change/promotion_proof.md)
+-----------------------------------------------
+  The migration was then applied to the production branch; priority_score now exists on BOTH
+  branches (verified live). The corresponding Git branch dev-tkop was merged to main.
+
+Second branch use — throwaway FORECASTING branch
+-------------------------------------------------
+  Branch         : forecast-scenario   (copy-on-write off production, TTL 7 days -> auto-expires)
+  Endpoint       : ep-autumn-dream-d8g9pia6…  (autoscaling floor lowered to 0.5 CU)
+  Use            : isolated what-if modeling — NOT development iteration.
+
+  On this branch (writes are copy-on-write isolated from production) we wrote a scenario table:
+    CREATE SCHEMA scenario;
+    CREATE TABLE scenario.replicate_all_forecast AS
+      SELECT ar.recommended_action, count(*) campaigns,
+             sum(cp.recoverable_spend_usd) total_recoverable_spend,
+             avg(ar.predicted_roas_lift)  avg_predicted_roas_lift,
+             sum(cp.recoverable_spend_usd * ar.predicted_roas_lift) projected_recovered_value
+      FROM synced.campaign_position cp
+      JOIN synced.open_underperformers ou USING (campaign_id)
+      JOIN synced.action_recommendations ar USING (campaign_id)
+      WHERE cp.perf_band='underperformer' AND cp.status='active'
+      GROUP BY ar.recommended_action;   -- see forecast_scenario.sql / branches_result.json
+
+  Forecast: replicating the matching winner across all 59 eligible underperformers projects
+  ~$23.8M recovered value (+2.24 avg ROAS lift); reallocating the other 30 projects ~$4.78M.
+
+  Isolation proof: the `scenario` schema exists on forecast-scenario but NOT on production
+  (branches_result.json → isolation_proof). The branch's TTL means it costs nothing long-term.
+
+Both branch uses (execution evidence)
+-------------------------------------
+  See branches_result.json — all branches READY:
+    production        (root)              — the live app
+    dev-tkop          development         — the coding-agent schema change (priority_score)
+    forecast-scenario throwaway forecast  — the isolated what-if above
+  Branch creation + scale-to-zero are captured as code in create_branches.sh.
+
+Related Git branch
+-------------------
+  A Git branch `dev-tkop` (off `main`) carries the committed migration + submission artifacts;
+  it was merged back to `main` (see git_history.txt and agent_change/migration_commit.txt).

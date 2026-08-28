@@ -1,0 +1,31 @@
+BUILD 1 · EVIDENCE #7 — representative business question for the customer
+=========================================================================
+
+Customer: Brightwave (consumer marketing brand). CMO Priya Anand needs to recover
+paid spend stuck in underperforming campaigns, mid-quarter, before attribution lands.
+
+Business question
+-----------------
+  "For the 5 active underperformers with the most recoverable spend, what is the
+   model's recommended action, the predicted ROAS lift, and the matching winner
+   to replicate?"
+
+How it is answered
+------------------
+  A single query over three SYNCED Unity Catalog tables in Lakebase
+  (synced.campaign_position, synced.open_underperformers, synced.action_recommendations),
+  joined on campaign_id. See core_query.sql; returned rows in core_query_result.json.
+
+Correct answer (from core_query_result.json)
+---------------------------------------------
+  The top 5 by recoverable spend are all display campaigns:
+    CMP-0001141  Outdoor Display Q1  $201,704.16  -> reallocate_budget  (+0.89 ROAS lift)
+    CMP-0001267  Outdoor Display Q3  $197,006.32  -> reallocate_budget  (+0.89)
+    CMP-0000790  Apparel Display Q2  $196,579.69  -> replicate_winner   (+2.23) winner CMP-0000634 (ROAS 4.96)
+    CMP-0001168  Outdoor Display Q4  $195,694.16  -> reallocate_budget  (+0.89)
+    CMP-0001330  Outdoor Display Q2  $195,407.19  -> reallocate_budget  (+0.89)
+
+Insight: 4 of the 5 highest-spend underperformers are outdoor/display with NO matching
+winner, so the model recommends reallocate_budget (~0.89 lift). The one apparel campaign
+(CMP-0000790) has a matching winner (CMP-0000634, ROAS 4.96), so the model recommends
+replicate_winner at +2.23 predicted lift — the highest-impact move in this set.

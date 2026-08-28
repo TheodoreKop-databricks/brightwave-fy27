@@ -1,0 +1,127 @@
+{
+  "feature": "Hybrid Lakebase Search over the operational text column app.creatives_search.description",
+  "halves": {
+    "full_text": {
+      "extension": "lakebase_text",
+      "index": "app.creatives_search_bm25 (lakebase_bm25 on search_tsv)",
+      "operator": "search_tsv <@> to_bm25query(...)"
+    },
+    "vector": {
+      "extension": "lakebase_vector",
+      "index": "app.creatives_search_ann (lakebase_ann on embedding vector_cosine_ops)",
+      "embedding_model": "databricks-gte-large-en (1024-dim)",
+      "operator": "embedding <=> :qvec"
+    }
+  },
+  "fusion": "Reciprocal Rank Fusion (RRF, k=60) over the two ranked lists",
+  "query_text": "high-trust social video to win back gen-z apparel shoppers",
+  "ann_index_explain": "Limit -> Index Scan using creatives_search_ann on creatives_search (Order By: embedding <=> '<1024-dim>'::vector)  -- vector ANN index is used, not a brute-force scan",
+  "embedding_coverage": "400 of 400 rows embedded",
+  "hybrid_results_rrf": [
+    {
+      "creative_id": "CRE-00160",
+      "creative_name": "lifestyle video 160",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "bm25_rank": 35,
+      "vector_rank": 9,
+      "rrf_score": 0.025019
+    },
+    {
+      "creative_id": "CRE-00155",
+      "creative_name": "lifestyle video 155",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "bm25_rank": 40,
+      "vector_rank": 8,
+      "rrf_score": 0.024706
+    },
+    {
+      "creative_id": "CRE-00223",
+      "creative_name": "lifestyle video 223",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "bm25_rank": 39,
+      "vector_rank": 13,
+      "rrf_score": 0.0238
+    },
+    {
+      "creative_id": "CRE-00238",
+      "creative_name": "lifestyle video 238",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "bm25_rank": 38,
+      "vector_rank": 14,
+      "rrf_score": 0.023718
+    },
+    {
+      "creative_id": "CRE-00241",
+      "creative_name": "lifestyle video 241",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "bm25_rank": 37,
+      "vector_rank": 15,
+      "rrf_score": 0.023643
+    },
+    {
+      "creative_id": "CRE-00245",
+      "creative_name": "lifestyle video 245",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "bm25_rank": 34,
+      "vector_rank": 17,
+      "rrf_score": 0.023625
+    },
+    {
+      "creative_id": "CRE-00242",
+      "creative_name": "lifestyle video 242",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "bm25_rank": 36,
+      "vector_rank": 16,
+      "rrf_score": 0.023575
+    },
+    {
+      "creative_id": "CRE-00252",
+      "creative_name": "lifestyle video 252",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "bm25_rank": 33,
+      "vector_rank": 18,
+      "rrf_score": 0.023573
+    }
+  ],
+  "vector_only_top5": [
+    {
+      "creative_id": "CRE-00356",
+      "angle": "lifestyle",
+      "creative_type": "video",
+      "cosine_distance": 0.2663
+    },
+    {
+      "creative_id": "CRE-00321",
+      "angle": "lifestyle",
+      "creative_type": "video",
+      "cosine_distance": 0.2663
+    },
+    {
+      "creative_id": "CRE-00259",
+      "angle": "lifestyle",
+      "creative_type": "video",
+      "cosine_distance": 0.2663
+    },
+    {
+      "creative_id": "CRE-00190",
+      "angle": "lifestyle",
+      "creative_type": "video",
+      "cosine_distance": 0.2663
+    },
+    {
+      "creative_id": "CRE-00216",
+      "angle": "lifestyle",
+      "creative_type": "video",
+      "cosine_distance": 0.2663
+    }
+  ],
+  "note": "Each hybrid row carries BOTH a bm25_rank (lexical) and a vector_rank (semantic), proving the two signals are combined. The query 'win back gen-z apparel shoppers with high-trust social video' surfaces lifestyle-video creatives (aspirational social for younger segments) \u2014 the semantic half lifts them even where exact lexical terms differ."
+}

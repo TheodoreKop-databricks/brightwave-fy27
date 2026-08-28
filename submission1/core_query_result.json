@@ -1,0 +1,62 @@
+[
+    {
+        "channel": "display",
+        "category": "outdoor",
+        "campaign_id": "CMP-0001141",
+        "campaign_name": "Outdoor Display Q1",
+        "spend_to_date_usd": 201704.16,
+        "recommended_action": "reallocate_budget",
+        "predicted_roas_lift": 0.8899,
+        "matching_winner_roas": null,
+        "recoverable_spend_usd": 201704.16,
+        "matching_winner_campaign_id": null
+    },
+    {
+        "channel": "display",
+        "category": "outdoor",
+        "campaign_id": "CMP-0001267",
+        "campaign_name": "Outdoor Display Q3",
+        "spend_to_date_usd": 197006.32,
+        "recommended_action": "reallocate_budget",
+        "predicted_roas_lift": 0.8890,
+        "matching_winner_roas": null,
+        "recoverable_spend_usd": 197006.32,
+        "matching_winner_campaign_id": null
+    },
+    {
+        "channel": "display",
+        "category": "apparel",
+        "campaign_id": "CMP-0000790",
+        "campaign_name": "Apparel Display Q2",
+        "spend_to_date_usd": 196579.69,
+        "recommended_action": "replicate_winner",
+        "predicted_roas_lift": 2.2330,
+        "matching_winner_roas": 4.96,
+        "recoverable_spend_usd": 196579.69,
+        "matching_winner_campaign_id": "CMP-0000634"
+    },
+    {
+        "channel": "display",
+        "category": "outdoor",
+        "campaign_id": "CMP-0001168",
+        "campaign_name": "Outdoor Display Q4",
+        "spend_to_date_usd": 195694.16,
+        "recommended_action": "reallocate_budget",
+        "predicted_roas_lift": 0.8888,
+        "matching_winner_roas": null,
+        "recoverable_spend_usd": 195694.16,
+        "matching_winner_campaign_id": null
+    },
+    {
+        "channel": "display",
+        "category": "outdoor",
+        "campaign_id": "CMP-0001330",
+        "campaign_name": "Outdoor Display Q2",
+        "spend_to_date_usd": 195407.19,
+        "recommended_action": "reallocate_budget",
+        "predicted_roas_lift": 0.8946,
+        "matching_winner_roas": null,
+        "recoverable_spend_usd": 195407.19,
+        "matching_winner_campaign_id": null
+    }
+]

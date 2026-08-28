@@ -1,0 +1,27 @@
+{
+  "feature": "Scale-to-zero / autoscaling \u2014 idle branches cost close to nothing",
+  "explanation": "Lakebase Autoscaling endpoints SUSPEND to zero compute after suspend_timeout_duration of idle (scale-to-zero), and autoscale between min/max CU while active. Branch endpoints were lowered to the 0.5 CU floor so idle cost is minimal; production kept at 1 CU for the live app.",
+  "endpoints": [
+    {
+      "branch": "production",
+      "min_cu": 1,
+      "max_cu": 1,
+      "suspend_timeout_duration": "86400s",
+      "current_state": "ACTIVE"
+    },
+    {
+      "branch": "dev-tkop",
+      "min_cu": 0.5,
+      "max_cu": 1,
+      "suspend_timeout_duration": "86400s",
+      "current_state": "ACTIVE"
+    },
+    {
+      "branch": "forecast-scenario",
+      "min_cu": 0.5,
+      "max_cu": 1,
+      "suspend_timeout_duration": "86400s",
+      "current_state": "ACTIVE"
+    }
+  ]
+}
