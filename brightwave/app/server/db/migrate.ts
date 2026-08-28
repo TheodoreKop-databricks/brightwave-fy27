@@ -32,8 +32,36 @@ export async function runMigrations(db: AppDb): Promise<void> {
         `Run \`npm run db:generate\` first.`,
     );
   }
-  await migrate(db, { migrationsFolder });
+  try {
+    await migrate(db, { migrationsFolder });
+  } catch (e) {
+    // Shared-DB fallback. Drizzle's migrator creates its journal in the
+    // `drizzle` schema; on this shared Lakebase the dev user created that
+    // schema, so the app SP (USAGE but not CREATE on it) 42501s on
+    // `CREATE TABLE drizzle.__drizzle_migrations` — even though every app.*
+    // table already exists and the migration is fully idempotent. If the whole
+    // app schema is already provisioned, the DB is in the intended state, so
+    // proceed; otherwise it's a real failure and we re-throw.
+    if (!(await allAppTablesExist(db))) throw e;
+    console.warn(
+      `[migrate] migrate() failed (${(e as Error).message.split('\n')[0]}) but all app.* tables exist — treating the schema as provisioned and continuing.`,
+    );
+  }
   await applyPostMigrationDdl(db);
+}
+
+/** True when every table the app owns already exists in schema `app`. */
+async function allAppTablesExist(db: AppDb): Promise<boolean> {
+  const need = ['conversations', 'messages', 'feedback', 'campaign_actions_app', 'workflow_events'];
+  try {
+    const rows = await db.execute(
+      sql`SELECT tablename FROM pg_tables WHERE schemaname = 'app'`,
+    );
+    const have = new Set((rows.rows as { tablename: string }[]).map((r) => r.tablename));
+    return need.every((t) => have.has(t));
+  } catch {
+    return false;
+  }
 }
 
 /**
