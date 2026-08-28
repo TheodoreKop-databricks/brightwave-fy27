@@ -1,4 +1,8 @@
-* 8aa21d9 (HEAD -> main, origin/main, origin/HEAD) cleaning build 1 submissions
+*   642786a (HEAD -> main) Merge build1-lakebase into main: Build 1 Lakebase submission evidence
+|\  
+| * 63f5ef9 (build1-lakebase) Build 1 (Lakebase): submission evidence + branch-creation as code
+|/  
+* 8aa21d9 (origin/main, origin/HEAD) cleaning build 1 submissions
 * 2958f27 feat: domain question — top-5 underperformers with model recommendations\n\nJoins synced.campaign_position, open_underperformers, action_recommendations\non production Lakebase. Answers: recoverable spend, recommended action,\npredicted ROAS lift, and matching winner to replicate.\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>"
 * ef7c9d5 feat: Lakebase Search (BM25) on creatives description\n\n- Extensions: vector, lakebase_vector, lakebase_text\n- Writable app.creatives_search with generated tsvector column\n- lakebase_bm25 index for full-text BM25 ranking\n- Query: 'high-energy social lifestyle creative for gen-Z apparel'\n- Top-10 results: all lifestyle angle creatives (social/younger segments)\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>"
 * a9cab83 feat: Lakebase CDF reverse sync + submission artifacts\n\n- lakebase_cdf.tf: Terraform resource for postgres->Delta CDC\n- reverse_sync_sample.json: SCD2 proof (insert/update_preimage/update_postimage)\n- REPLICA IDENTITY FULL on all app schema tables\n- CDF config: app -> brightwave_techsummit27_catalog.lakebase_cdc\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>"
