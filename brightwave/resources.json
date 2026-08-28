@@ -27,6 +27,9 @@
     "genie_space_id": "01f1a26fadc51614a203f762ffb368d4",
     "dashboard_id": "01f1a26fed4516b98df68d6ff9e84d65",
     "ml_model_name": "brightwave_techsummit27_catalog.brightwave.roas_recommender",
-    "mlflow_experiment_path": "/Users/theodore.kop@databricks.com/roas_recommender"
+    "mlflow_experiment_path": "/Users/theodore.kop@databricks.com/roas_recommender",
+    "lakebase_project_id": "brightwave-campaign-desk",
+    "lakebase_catalog": "brightwave_lakebase_tkop",
+    "lakebase_host": "ep-delicate-mountain-d8kizg3e.database.us-east-2.cloud.databricks.com"
   }
 }
