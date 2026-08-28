@@ -40,12 +40,27 @@ try {
   process.exit(0);
 }
 
+// `ALTER TABLE ... ADD CONSTRAINT ... ;` has no IF NOT EXISTS in Postgres, so
+// wrap each in a DO block that swallows duplicate_object — otherwise re-running
+// the (regenerated, new-hash) 0000 against a DB that already has the FK throws
+// 42710. drizzle emits each as a single line ending in `;`.
+function guardAddConstraints(sql) {
+  // drizzle emits each statement on one line ending in `;`, optionally followed
+  // by its `--> statement-breakpoint` separator comment — preserve that suffix.
+  return sql.replace(
+    /^(\s*)(ALTER TABLE .+? ADD CONSTRAINT .+?;)(--> statement-breakpoint)?[ \t]*$/gm,
+    (_m, indent, stmt, bp) =>
+      `${indent}DO $$ BEGIN ${stmt} EXCEPTION WHEN duplicate_object THEN NULL; END $$;${bp ?? ''}`,
+  );
+}
+
 let changed = 0;
 for (const f of files) {
   const p = resolve(dir, f);
   const before = readFileSync(p, 'utf8');
   let after = before;
   for (const [re, to] of rules) after = after.replace(re, to);
+  after = guardAddConstraints(after);
   if (after !== before) {
     writeFileSync(p, after);
     changed++;

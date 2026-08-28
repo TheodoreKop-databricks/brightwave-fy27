@@ -42,27 +42,27 @@ import { AgentLoopFlow } from '@/architecture/AgentLoopFlow';
 // ---------------------------------------------------------------------------
 
 const HERO = {
-  name: 'Claire Dubois',
-  role: 'VP of Operations',
+  name: 'Priya',
+  role: 'CMO at Brightwave',
 };
 
 const STORY = {
-  headline: "Returns are running 3x normal — and we don't know why.",
+  headline: "Replicate what's working, while the quarter's still in play.",
   situation:
-    "Three weeks ago returns jumped from ~$60K/week to $180K, driven by three skincare SKUs with a 30% return rate. They're still elevated at ~$80K. Revenue looks fine, orders look fine — but the refunds line is eating the quarter.",
-  goal: 'Find the root cause, confirm the blast radius, and decide on a recall or field fix.',
+    "Our winners are running ~4.0 ROAS on $2.3M spend, while a cluster of underperformers is stuck at ~1.1 ROAS leaking $6.8M in recoverable spend. The gap is sharpening every week. I need to find the patterns in the winners and apply them across the underperformers before we run out of time.",
+  goal: "Identify why winners win, and replicate their playbook across the underperformer backlog before quarter-end.",
 };
 
 const STARTER_QUESTIONS = [
-  'Why do I have so many returns?',
-  'Was there an incident for that lot?',
-  'Which of the affected customers are premium (CS-tagged or model-found)?',
+  'Why is CMP-0000214 underperforming?',
+  'What campaigns should I replicate?',
+  'Which winners should we study for patterns?',
 ];
 
 // The featured action's copy is inlined in the JSX below — the section is just
 // HTML, edit it freely. The prompt text is the single thing the agent runs.
 const FEATURED_ACTION_PROMPT =
-  "Something is off with our returns right now. Find the worst production lot, then use the premium classifier to split the affected customers — CS-tagged premium PLUS the hidden premiums the model surfaces — from the standard cohort. Draft two apology email templates: a 20% personal apology for premium, a 5% goodwill for standard. Show me both, including the count of CS-tagged vs model-found premiums, before sending. Wait for my approval. Once I say go, email everyone with their tier's coupon and approve all the refunds.";
+  'CMP-0000214 is one of our worst underperformers at $2.3M spend and 1.1 ROAS. I see it has a matching winner. Tell me what makes that winner work — the channel, the creative strategy, the target segment. Then give me a brief for replicating those patterns across CMP-0000214. I want to know which elements are most likely to move the needle and how much ROAS lift we can expect.';
 
 export function HomeView() {
   const { config, configError, retry: retrySession } = useSession();
@@ -183,20 +183,19 @@ export function HomeView() {
                 Let the assistant handle it
               </div>
               <h3 className="display text-2xl font-semibold mb-2 leading-tight">
-                Handle the bad-lot returns — tier the offer by premium status
+                Replicate the winner playbook across underperformers
               </h3>
               <p className="hidden sm:block text-sm opacity-85 leading-relaxed mb-5 max-w-2xl">
-                The assistant traces the spike to one lot, then asks the
-                premium classifier which of the affected customers your CS
-                team has tagged AND which hidden premiums the model has
-                surfaced (untagged customers who look just like the tagged
-                ones). It drafts two apology emails (20% personal apology
-                for premium, 5% goodwill for the rest), and waits for your
-                approval before anything goes out.
+                The assistant analyzes CMP-0000214's matching winner to
+                identify what's driving its 4.0 ROAS: the channel mix, the
+                creative strategy, the audience targeting. It then drafts a
+                brief for replicating those patterns and estimates the ROAS
+                lift. Once you approve, it can replicate across your
+                underperformer cluster.
               </p>
               <p className="sm:hidden text-sm opacity-85 leading-relaxed mb-5">
-                Trace the spike, tier the offer (premium vs. rest), draft
-                the apology emails — approve before anything goes out.
+                Find what makes the winners work, draft a replication plan,
+                apply it across underperformers.
               </p>
               <button
                 onClick={() => dockController.newAndSend(FEATURED_ACTION_PROMPT)}
@@ -216,7 +215,7 @@ export function HomeView() {
             </div>
             <ActivityFeed
               events={activity}
-              onJumpToReturn={(id) => navigate(`/operations?return=${id}`)}
+              onJumpToReturn={(id) => navigate(`/campaign-desk?campaign=${id}`)}
             />
           </section>
         )}
@@ -252,14 +251,14 @@ function JourneyDiagram({
     {
       icon: <Eye className="size-5" />,
       role: `${heroName} operates`,
-      quote: '"Returns are everywhere — my dashboard lit up."',
+      quote: '"Green campaigns winning at 4.0x, red ones stuck at 1.1x."',
       highlight: false,
-      onClick: () => navigate('/operations'),
+      onClick: () => navigate('/campaign-desk'),
     },
     {
       icon: <MessageCircleQuestion className="size-5" />,
       role: 'She asks',
-      quote: '"Why do I have so many returns?"',
+      quote: '"Why is CMP-0000214 so far behind?"',
       highlight: false,
       onClick: () =>
         step0
@@ -269,14 +268,14 @@ function JourneyDiagram({
     {
       icon: <Brain className="size-5" />,
       role: 'AI investigates',
-      quote: '"A bad production batch at one facility. 3 SKUs. Quality issue on the line."',
+      quote: '"Its matching winner uses a different channel angle. High relevance to premium segment."',
       highlight: true,
       onClick: () => dockController.open(),
     },
     {
       icon: <Wrench className="size-5" />,
       role: 'AI takes action',
-      quote: '"Found the hidden premiums. Drafted both emails. Sent."',
+      quote: '"Drafted replication brief. 2.5x ROAS lift predicted. Ready to replicate."',
       highlight: true,
       onClick: () => {
         // Fire step-1 (accept + draft). If user is mid-chain the dock will

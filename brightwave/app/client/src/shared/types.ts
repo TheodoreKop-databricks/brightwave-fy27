@@ -271,3 +271,111 @@ export type CustomerOrder = {
   status: string | null;
   item_count: number;
 };
+
+// ── Brightwave campaign types (from API contract)
+export type DeskKpis = {
+  recoverableSpendUsd: number;
+  underperformerCount: number;
+  underperformerCountOpen: number;
+  avgWinnerRoas: number | null;
+  avgUnderperformerRoas: number | null;
+};
+
+export type ScatterPoint = {
+  campaignId: string;
+  campaignName: string | null;
+  channel: string | null;
+  roas: number | null;
+  spendToDateUsd: number | null;
+  perfBand: PerfBand | null;
+  hasAction: boolean;
+};
+
+export type QueueRow = {
+  campaignId: string;
+  campaignName: string | null;
+  channel: string | null;
+  category: string | null;
+  targetSegment: string | null;
+  roas: number | null;
+  spendToDateUsd: number | null;
+  recoverableSpendUsd: number | null;
+  perfBand: PerfBand;
+  hasMatchingWinner: boolean | null;
+  matchingWinnerCampaignId: string | null;
+  matchingWinnerRoas: number | null;
+  recommendedAction: ActionType | null;
+  predictedRoasLift: number | null;
+  actionStatus: string | null;
+  actionTakenType: ActionType | null;
+};
+
+export type MatchingWinner = {
+  campaignId: string;
+  campaignName: string | null;
+  channel: string | null;
+  category: string | null;
+  roas: number | null;
+  creativeId: string | null;
+  creativeName: string | null;
+  creativeType: string | null;
+  angle: string | null;
+  description: string | null;
+};
+
+export type RankedAction = {
+  actionType: ActionType;
+  predictedRoasLift: number;
+  predictedNetValueUsd: number;
+};
+
+export type LatestAction = {
+  id: string;
+  actionType: ActionType;
+  targetCampaignId: string | null;
+  draftedBrief: string | null;
+  predictedRoasLift: number | null;
+  status: string;
+  approvedBy: string | null;
+  auditTrail: AuditEntry[];
+  createdAt: string;
+  decidedAt: string | null;
+};
+
+export type CampaignActivityEntry = {
+  at: string;
+  by: string;
+  action: string;
+  notes?: string;
+  tool?: string;
+  kind: string;
+};
+
+export type CampaignDetail = {
+  campaign: QueueRow & {
+    campaignSummary: string | null;
+    attributedRevenueUsd: number | null;
+    creativeId: string | null;
+    status: string | null;
+  };
+  matchingWinner: MatchingWinner | null;
+  rankedActions: RankedAction[];
+  recommendedAction: ActionType | null;
+  predictedNetValueUsd: number | null;
+  latestAction: LatestAction | null;
+  activity: CampaignActivityEntry[];
+};
+
+export type CreativeHit = {
+  creativeId: string;
+  creativeName: string | null;
+  creativeType: string | null;
+  angle: string | null;
+  description: string | null;
+  score: number | null;
+};
+
+export type CampaignFilters = {
+  channels: string[];
+  categories: string[];
+};

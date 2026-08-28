@@ -112,10 +112,13 @@ export const creatives = syncedSchema.table(
   (t) => [index('creatives_type_idx').on(t.creativeType)],
 );
 
-/** One option in the ML model's ranked action list (on
- *  `action_recommendations.action_ranking`). */
+/** One option in the ML model's ranked action list. In Lakebase the
+ *  `action_recommendations.action_ranking` column is TEXT holding a JSON array
+ *  with snake_case keys ({action, predicted_roas_lift, predicted_net_value_usd,
+ *  action_cost_usd}); the query layer parses + maps it to this camelCase shape. */
 export type ActionOption = {
   actionType: 'replicate_winner' | 'reallocate_budget' | 'pause';
   predictedRoasLift: number;
   predictedNetValueUsd: number;
+  actionCostUsd?: number | null;
 };

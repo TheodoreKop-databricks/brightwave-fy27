@@ -121,6 +121,42 @@ export type QueueFilters = {
 const num = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
 
 /**
+ * `synced.action_recommendations.action_ranking` is a TEXT column holding a
+ * JSON array with snake_case keys, e.g.
+ *   [{"action":"replicate_winner","predicted_roas_lift":2.23,"predicted_net_value_usd":415985.59,"action_cost_usd":2000.0}, …]
+ * Parse it (it may already be an array/obj if the driver hands back jsonb) and
+ * map to the camelCase ActionOption shape the UI + agent consume.
+ */
+function parseActionRanking(raw: unknown): ActionOption[] {
+  let arr: unknown = raw;
+  if (typeof raw === 'string') {
+    if (!raw.trim()) return [];
+    try {
+      arr = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((o) => {
+      const r = o as Record<string, unknown>;
+      const at = (r.actionType ?? r.action) as ActionType | undefined;
+      if (!at) return null;
+      return {
+        actionType: at,
+        predictedRoasLift: Number(r.predictedRoasLift ?? r.predicted_roas_lift ?? 0),
+        predictedNetValueUsd: Number(r.predictedNetValueUsd ?? r.predicted_net_value_usd ?? 0),
+        actionCostUsd:
+          r.actionCostUsd ?? r.action_cost_usd ?? null
+            ? Number(r.actionCostUsd ?? r.action_cost_usd)
+            : null,
+      } as ActionOption;
+    })
+    .filter((x): x is ActionOption => x !== null);
+}
+
+/**
  * The underperformer queue: all campaigns joined to their matching winner
  * (open_underperformers), model recommendation (action_recommendations) and the
  * latest recorded action (campaign_actions_app → "action taken"). Filter/sort
@@ -313,7 +349,7 @@ export async function campaignDetail(db: AppDb, campaignId: string): Promise<Cam
     (a.auditTrail ?? []).map((e) => ({ ...e, kind: 'audit' })),
   );
 
-  const ranking = (c.action_ranking as ActionOption[] | null) ?? [];
+  const ranking = parseActionRanking(c.action_ranking);
 
   return {
     campaign: {
@@ -494,7 +530,7 @@ export async function getRecommendation(db: AppDb, campaignId: string): Promise<
     recommendedAction: (r.recommended_action as ActionType) ?? null,
     predictedRoasLift: num(r.predicted_roas_lift),
     predictedNetValueUsd: num(r.predicted_net_value_usd),
-    actionRanking: (r.action_ranking as ActionOption[] | null) ?? [],
+    actionRanking: parseActionRanking(r.action_ranking),
   };
 }
 

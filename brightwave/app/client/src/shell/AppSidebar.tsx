@@ -20,7 +20,7 @@ import { conversationStore, useConversationList } from '@/lib/conversations';
 
 const navItems = [
   { to: '/', label: 'Assistant', icon: MessagesSquare, end: true },
-  { to: '/operations', label: 'Operations', icon: PackageOpen, end: false },
+  { to: '/campaign-desk', label: 'Campaign Desk', icon: PackageOpen, end: false },
   { to: '/analytics', label: 'Analytics', icon: BarChart3, end: false },
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: false },
 ];

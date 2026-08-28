@@ -17,30 +17,23 @@
 
 :root {
   /* ========================================================================
-   * BRAND PALETTE — single source of truth.
+   * BRAND PALETTE — Brightwave Campaign Desk
    *
-   * These five stops mirror the LuxeBeauty AI/BI dashboard's
-   * visualizationColors theme so the app + dashboard read as one product.
-   * Every other token below derives from these — change a stop here and
-   * the whole app shifts. Edit cautiously.
-   *
-   * To re-skin the app for a different demo, replace these 5 hex stops
-   * (and the canvas/font/selection block right below) — that is the
-   * complete branding surface. Component code does NOT hardcode hex
-   * outside of intentionally-decorative SVGs (the source-pill tints in
-   * PlatformView also point back to these tokens).
+   * Marketing analytics palette: confident, energetic, performance-focused.
+   * Primary is teal (tech-forward), accent is vibrant coral.
+   * Winners = green, underperformers = red, steady = blue, paused = grey.
    * ====================================================================== */
-  --brand-1: #094074;   /* deep navy   — primary, chart anchor */
-  --brand-2: #3C6997;   /* slate blue  — primary tint, chart 2 */
-  --brand-3: #5ADBFF;   /* electric cyan — chart 3, highlights */
-  --brand-4: #FFDD4A;   /* lemon       — chart 4, warning-adjacent */
-  --brand-5: #FE9000;   /* warm orange — accent / CTA, chart 5 */
+  --brand-1: #0D5F6E;   /* teal        — primary, chart anchor */
+  --brand-2: #2D8C97;   /* teal-light  — primary tint, chart 2 */
+  --brand-3: #4DB3C4;   /* cyan        — chart 3, highlights */
+  --brand-4: #F59E0B;   /* amber       — chart 4, warning-adjacent */
+  --brand-5: #FF6B6B;   /* coral       — accent / CTA, chart 5 */
 
   /* Dashboard-theme surfaces */
-  --brand-canvas: #F5F7FB;     /* dashboard canvas */
+  --brand-canvas: #F8FAFB;     /* dashboard canvas */
   --brand-surface: #FFFFFF;    /* dashboard widget background */
-  --brand-ink: #1F2530;        /* dashboard font color */
-  --brand-selection: #4F7CE3;  /* dashboard selection */
+  --brand-ink: #0F172A;        /* dashboard font color */
+  --brand-selection: #0D5F6E;  /* dashboard selection */
 
   /* ========================================================================
    * SEMANTIC TOKENS — what components actually consume.
