@@ -42,15 +42,15 @@ import { AgentLoopFlow } from '@/architecture/AgentLoopFlow';
 // ---------------------------------------------------------------------------
 
 const HERO = {
-  name: 'Priya',
-  role: 'CMO at Brightwave',
+  name: 'Campaign Desk',
+  role: 'Marketing performance · governed',
 };
 
 const STORY = {
   headline: "Replicate what's working, while the quarter's still in play.",
   situation:
-    "Our winners are running ~4.0 ROAS on $2.3M spend, while a cluster of underperformers is stuck at ~1.1 ROAS leaking $6.8M in recoverable spend. The gap is sharpening every week. I need to find the patterns in the winners and apply them across the underperformers before we run out of time.",
-  goal: "Identify why winners win, and replicate their playbook across the underperformer backlog before quarter-end.",
+    "Winners are running ~4.0 ROAS on $2.3M spend, while a cluster of underperformers is stuck at ~1.1 ROAS leaking recoverable spend — and the gap sharpens every week. The desk surfaces the patterns behind the winners and replicates them across the underperformer backlog before the quarter runs out.",
+  goal: "Find why winners win, and replicate their playbook across the underperformer backlog before quarter-end.",
 };
 
 const STARTER_QUESTIONS = [
@@ -105,8 +105,6 @@ export function HomeView() {
     return <div className="p-12 text-muted-foreground">Loading…</div>;
   }
 
-  const heroFirstName = HERO.name.split(/\s+/)[0];
-
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-14 space-y-5 sm:space-y-7">
@@ -136,9 +134,9 @@ export function HomeView() {
         {/* Persona journey diagram */}
         <section className="space-y-5">
           <div className="hidden sm:block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            A week of work · before noon
+            The workflow
           </div>
-          <JourneyDiagram heroName={heroFirstName} script={config.assistantScript} />
+          <JourneyDiagram script={config.assistantScript} />
 
           <AgentLoopFlow />
         </section>
@@ -236,10 +234,8 @@ export function HomeView() {
  * `script` comes from config — the handlers pull the matching prompts.
  */
 function JourneyDiagram({
-  heroName,
   script,
 }: {
-  heroName: string;
   script: ScriptStep[];
 }) {
   const navigate = useNavigate();
@@ -250,14 +246,14 @@ function JourneyDiagram({
   const steps = [
     {
       icon: <Eye className="size-5" />,
-      role: `${heroName} operates`,
+      role: 'Operate the desk',
       quote: '"Green campaigns winning at 4.0x, red ones stuck at 1.1x."',
       highlight: false,
       onClick: () => navigate('/campaign-desk'),
     },
     {
       icon: <MessageCircleQuestion className="size-5" />,
-      role: 'She asks',
+      role: 'Ask the assistant',
       quote: '"Why is CMP-0000214 so far behind?"',
       highlight: false,
       onClick: () =>

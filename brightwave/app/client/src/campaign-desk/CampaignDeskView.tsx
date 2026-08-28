@@ -108,25 +108,32 @@ export function CampaignDeskView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  async function reload() {
-    setLoading(true);
+  // Global data (KPI cards + scatter + filter chips) — independent of the queue
+  // tabs/search, so fetch it once on mount and again only when the agent writes.
+  async function reloadGlobal() {
     try {
-      const [k, s, q, f] = await Promise.all([
-        fetchKpis(),
-        fetchScatter(),
-        fetchQueue({
-          status: status === 'all' ? undefined : status,
-          search: search || undefined,
-          channel: channel ?? undefined,
-          category: category ?? undefined,
-          sort,
-        }),
-        fetchFilters(),
-      ]);
+      const [k, s, f] = await Promise.all([fetchKpis(), fetchScatter(), fetchFilters()]);
       setKpis(k);
       setScatter(s);
-      setQueue(q);
       setFilters(f);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+
+  // The queue reacts to tabs / filters / search only — no need to refetch the
+  // 2000-point scatter on every keystroke.
+  async function reloadQueue() {
+    setLoading(true);
+    try {
+      const q = await fetchQueue({
+        status: status === 'all' ? undefined : status,
+        search: search || undefined,
+        channel: channel ?? undefined,
+        category: category ?? undefined,
+        sort,
+      });
+      setQueue(q);
       setError(null);
     } catch (e) {
       setError((e as Error).message);
@@ -136,15 +143,24 @@ export function CampaignDeskView() {
   }
 
   useEffect(() => {
-    void reload();
+    void reloadGlobal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Debounced queue reload on filter/search change (300ms when typing).
+  useEffect(() => {
+    const t = setTimeout(() => void reloadQueue(), search ? 300 : 0);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, channel, category, sort, search]);
 
-  // Subscribe to dataMutated (agent writes)
+  // Subscribe to dataMutated (agent writes) — refresh both global + queue.
   useEffect(() => {
     return dataMutated.subscribe(() => {
-      void reload();
+      void reloadGlobal();
+      void reloadQueue();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const selectedCampaign = useMemo(

@@ -7,7 +7,7 @@
  *   getRecommendation / searchCreatives are the agent-tool read helpers.
  * Layer 3 (Act): recordCampaignAction writes the approved action + a decision event.
  */
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import type { AppDb } from '../index.js';
 import { campaignActions, workflowEvents, type AuditEntry } from '../schema.js';
 import type { ActionOption } from '../synced-schema.js';
@@ -558,9 +558,12 @@ export async function recordCampaignAction(
   },
 ): Promise<{ actionId: string; eventId: string }> {
   return db.transaction(async (tx) => {
-    const now = new Date();
+    // The action row is first recorded (created_at), then the approval is
+    // committed (decided_at) after the decision event is logged — so
+    // created_at < decided_at reflects the real record→approve ordering.
+    const created = new Date();
     const audit: AuditEntry = {
-      at: now.toISOString(),
+      at: created.toISOString(),
       by: args.userEmail,
       action: 'approved',
       notes: 'Campaign action recorded',
@@ -577,7 +580,7 @@ export async function recordCampaignAction(
         status: 'approved',
         approvedBy: args.userEmail,
         auditTrail: [audit],
-        decidedAt: now,
+        createdAt: created,
       })
       .returning({ id: campaignActions.id });
 
@@ -595,6 +598,12 @@ export async function recordCampaignAction(
         },
       })
       .returning({ id: workflowEvents.id });
+
+    // Stamp the approval instant (strictly after created_at).
+    await tx
+      .update(campaignActions)
+      .set({ decidedAt: new Date() })
+      .where(eq(campaignActions.id, action.id));
 
     return { actionId: action.id, eventId: event.id };
   });

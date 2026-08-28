@@ -129,9 +129,9 @@ export function AgentLoopFlow() {
       <p className="text-sm text-muted-foreground leading-relaxed mb-5">
         The agent doesn't just diagnose — it{' '}
         <span className="font-medium text-foreground">takes the action</span>.
-        Genie queries the data, you approve the plan, then the agent sends the
-        apology emails and files the refunds, updating Lakebase live. One
-        conversation, end to end.
+        Genie investigates the governed campaign data, the ML model ranks the
+        move, you approve, then the agent records the campaign action to Lakebase
+        and logs the decision. One conversation, end to end.
       </p>
 
       {/* the loop — desktop */}
@@ -153,24 +153,23 @@ export function AgentLoopFlow() {
           <div className="text-[10.5px] font-mono uppercase tracking-[0.16em] text-muted-foreground">
             Agentic analysis
           </div>
-          <MiniTile icon={<AgentBricksIcon />} label="Agent Bricks · orchestrates" />
-          <MiniTile icon={<GenieIcon />} label="Genie · text → SQL" />
-          <MiniTile icon={<LakebaseIcon />} label="Lakebase · queries the data" />
+          <MiniTile icon={<GenieIcon />} label="Genie · investigates" />
+          <MiniTile icon={<AgentBricksIcon />} label="ML model · ranks the action" />
+          <MiniTile icon={<LakebaseIcon />} label="Lakebase · live campaign data" />
         </div>
 
         <Connector width={56} centered />
         <Stage tileSize={50} iconSize={32} icon={<ProposeIcon />} name="Propose action" sub="human approves" />
         <Fork />
-        {/* Right column: top branch → Send email; bottom branch → Lakebase
-            update. The Fork's two endpoints are at y=22 and y=108 within a
-            130-tall box. justify-content: space-between lines the two
-            <Stage> tiles up with those endpoints. */}
+        {/* Right column: post-approval, execute_campaign_action writes BOTH the
+            approved action and a decision event in one transaction. The Fork's
+            two endpoints (y=22, y=108 in a 130-tall box) line up with the two tiles. */}
         <div
           className="flex flex-col"
           style={{ height: 130, justifyContent: 'space-between', flexShrink: 0 }}
         >
-          <Stage tileSize={50} iconSize={32} icon={<SendIcon />} name="Send email" />
-          <Stage tileSize={50} iconSize={32} icon={<LakebaseIcon />} name="Approve refunds" sub="update Lakebase" />
+          <Stage tileSize={50} iconSize={32} icon={<SendIcon />} name="Record action" sub="campaign_actions_app" />
+          <Stage tileSize={50} iconSize={32} icon={<LakebaseIcon />} name="Log decision" sub="workflow_events" />
         </div>
       </div>
 
@@ -179,13 +178,13 @@ export function AgentLoopFlow() {
         <MobileStep icon={<OperatorIcon />} label="Operator" sub="asks the question" />
         <li className="rounded-xl border border-border bg-background p-3 flex flex-col gap-2">
           <div className="text-[10.5px] font-mono uppercase tracking-[0.16em] text-muted-foreground">Agentic analysis</div>
-          <MiniTile icon={<AgentBricksIcon />} label="Agent Bricks · orchestrates" />
-          <MiniTile icon={<GenieIcon />} label="Genie · text → SQL" />
-          <MiniTile icon={<LakebaseIcon />} label="Lakebase · queries the data" />
+          <MiniTile icon={<GenieIcon />} label="Genie · investigates" />
+          <MiniTile icon={<AgentBricksIcon />} label="ML model · ranks the action" />
+          <MiniTile icon={<LakebaseIcon />} label="Lakebase · live campaign data" />
         </li>
         <MobileStep icon={<ProposeIcon />} label="Propose action" sub="human approves" />
-        <MobileStep icon={<SendIcon />} label="Send email" />
-        <MobileStep icon={<LakebaseIcon />} label="Approve refunds" sub="update Lakebase" />
+        <MobileStep icon={<SendIcon />} label="Record action" sub="campaign_actions_app" />
+        <MobileStep icon={<LakebaseIcon />} label="Log decision" sub="workflow_events" />
       </ol>
 
       {/* governed strip */}
