@@ -634,17 +634,43 @@ void (async () => {
     // from the AUTHENTICATED header, not config.token, so it works whether the
     // profile is PAT or OAuth (OAuth tokens only materialize during
     // authenticate()). Graceful: on any failure, fall back to the default init.
+    // On the deployed Apps container the platform injects env OAuth
+    // (DATABRICKS_CLIENT_ID/SECRET) AND writes /home/app/.databrickscfg (a PAT).
+    // The mlflow-tracing SDK builds its OWN Config that resolves BOTH and then
+    // fails validation ("more than one authorization method configured: oauth
+    // and pat") on every trace export. Neutralize the file for that SDK by
+    // pointing DATABRICKS_CONFIG_FILE at an EMPTY file, so it resolves ONLY the
+    // env OAuth (the app SP). This only affects Config instances built AFTER
+    // here (the exporter's) — AppKit's client + the agent's SP-token path were
+    // already constructed at createApp and keep working via env OAuth.
+    const spOAuth = !!process.env.DATABRICKS_CLIENT_ID;
+    if (spOAuth) {
+      try {
+        const fs = await import('node:fs');
+        const empty = '/tmp/brightwave-empty.databrickscfg';
+        fs.writeFileSync(empty, '');
+        process.env.DATABRICKS_CONFIG_FILE = empty;
+      } catch (e) {
+        console.warn('[boot] could not neutralize .databrickscfg for MLflow auth:', (e as Error).message);
+      }
+    }
+
+    // Local dev / preview has NO env OAuth — pass the explicit host + token the
+    // app client resolves (CLI profile) so the exporter can authenticate.
+    // Deployed uses the env OAuth resolved above (no explicit token → no conflict).
     let mlflowHost: string | undefined;
     let mlflowToken: string | undefined;
-    try {
-      const { client } = getExecutionContext();
-      const h = new Headers();
-      await client.config.authenticate(h);
-      mlflowToken = /^Bearer\s+(.+)$/i.exec(h.get('Authorization') ?? '')?.[1];
-      mlflowHost = (client.config as { host?: string }).host
-        ?? process.env.DATABRICKS_HOST;
-    } catch (e) {
-      console.warn('[boot] could not resolve MLflow exporter auth from the app client — trace upload may fail:', (e as Error).message);
+    if (!spOAuth) {
+      try {
+        const { client } = getExecutionContext();
+        const h = new Headers();
+        await client.config.authenticate(h);
+        mlflowToken = /^Bearer\s+(.+)$/i.exec(h.get('Authorization') ?? '')?.[1];
+        mlflowHost = (client.config as { host?: string }).host
+          ?? process.env.DATABRICKS_HOST;
+      } catch (e) {
+        console.warn('[boot] could not resolve MLflow exporter auth from the app client — trace upload may fail:', (e as Error).message);
+      }
     }
 
     mlflow.init({
