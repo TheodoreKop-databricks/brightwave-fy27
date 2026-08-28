@@ -1,0 +1,14 @@
+HERO QUESTION
+=============
+"Which campaigns are winning and why, and how do I replicate the winner's creative across CMP-0000214?"
+
+DECISION CHAIN (resolves across submission2 evidence #1/#2/#3):
+  CMP-0000214 (underperformer, ROAS ~1.1)
+    -> matching winner: CMP-0000634 (ROAS ~4.96)   [view_result.json / #3]
+    -> model recommended_action: replicate_winner   [synced.action_recommendations]
+    -> approved action: campaign_actions_app.id = c6021f0f-6345-4033-a561-1d3fad45bba8   [writeback_table.json / #1]
+       action_type=replicate_winner target=CMP-0000634 status=approved approved_by=local_user@databricks.com decided_at=2026-08-28T18:49:44.074+00:00
+    -> workflow_events decision: id = dc87473d-ae58-4db4-bead-cff2752b4cd1 (action_id=c6021f0f-6345-4033-a561-1d3fad45bba8)   [state_table.json / #2]
+       actor=local_user@databricks.com payload={"action_type": "replicate_winner", "target_campaign_id": "CMP-0000634", "predicted_roas_lift": 2.2343} occurred_at=2026-08-28T18:49:43.960369+00:00
+
+TRIGGER (state_table.json / #2): scoring_trigger event daa45a32-3c9a-4631-9dec-5f184e0c44c8 payload={"winners": 60, "campaigns_scored": 2000, "underperformers_flagged": 89} at 2026-08-28T17:55:08.666268+00:00

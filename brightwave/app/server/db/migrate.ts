@@ -21,24 +21,26 @@ import type { AppDb } from './index.js';
  * sequence in server.ts is unchanged.
  */
 export async function runMigrations(db: AppDb): Promise<void> {
-  // Schema — no-op if it exists (the SP has CREATE ON DATABASE).
-  await db.execute(sql`CREATE SCHEMA IF NOT EXISTS app`);
-
-  // Chat state.
-  await db.execute(sql`
-    CREATE TABLE IF NOT EXISTS app.conversations (
+  // Every statement is idempotent (IF NOT EXISTS). On this SHARED Lakebase the
+  // app SP may not OWN tables the dev user created locally, so CREATE
+  // INDEX/ALTER can 42501 — benign, because the objects already exist. So we run
+  // each statement tolerantly (log + continue) and only fail boot if the core
+  // app.* tables are genuinely absent (checked at the end).
+  const statements = [
+    // Schema (no-op if it exists; SP has CREATE ON DATABASE).
+    sql`CREATE SCHEMA IF NOT EXISTS app`,
+    // Chat state.
+    sql`CREATE TABLE IF NOT EXISTS app.conversations (
       id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
       user_email text NOT NULL,
       title text NOT NULL,
       kind text NOT NULL DEFAULT 'default',
       created_at timestamptz NOT NULL DEFAULT now(),
       updated_at timestamptz NOT NULL DEFAULT now()
-    )`);
-  await db.execute(sql`CREATE INDEX IF NOT EXISTS conversations_user_idx ON app.conversations (user_email, updated_at)`);
-  await db.execute(sql`CREATE INDEX IF NOT EXISTS conversations_kind_idx ON app.conversations (user_email, kind)`);
-
-  await db.execute(sql`
-    CREATE TABLE IF NOT EXISTS app.messages (
+    )`,
+    sql`CREATE INDEX IF NOT EXISTS conversations_user_idx ON app.conversations (user_email, updated_at)`,
+    sql`CREATE INDEX IF NOT EXISTS conversations_kind_idx ON app.conversations (user_email, kind)`,
+    sql`CREATE TABLE IF NOT EXISTS app.messages (
       id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
       conversation_id uuid NOT NULL REFERENCES app.conversations(id) ON DELETE CASCADE,
       role text NOT NULL,
@@ -49,13 +51,11 @@ export async function runMigrations(db: AppDb): Promise<void> {
       error text,
       canceled boolean NOT NULL DEFAULT false,
       created_at timestamptz NOT NULL DEFAULT now()
-    )`);
-  // Unique (conversation_id, position) — turns the SELECT MAX(position)+1 race
-  // in appendMessage into a 23505 the caller retries (see schema.ts).
-  await db.execute(sql`CREATE UNIQUE INDEX IF NOT EXISTS messages_convo_pos_uq ON app.messages (conversation_id, position)`);
-
-  await db.execute(sql`
-    CREATE TABLE IF NOT EXISTS app.feedback (
+    )`,
+    // Unique (conversation_id, position) — turns the SELECT MAX(position)+1 race
+    // in appendMessage into a 23505 the caller retries (see schema.ts).
+    sql`CREATE UNIQUE INDEX IF NOT EXISTS messages_convo_pos_uq ON app.messages (conversation_id, position)`,
+    sql`CREATE TABLE IF NOT EXISTS app.feedback (
       id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
       message_id uuid NOT NULL REFERENCES app.messages(id) ON DELETE CASCADE,
       user_email text NOT NULL,
@@ -64,12 +64,10 @@ export async function runMigrations(db: AppDb): Promise<void> {
       trace_id text,
       mlflow_assessment_id text,
       created_at timestamptz NOT NULL DEFAULT now()
-    )`);
-  await db.execute(sql`CREATE INDEX IF NOT EXISTS feedback_message_idx ON app.feedback (message_id)`);
-
-  // Writable operational table (the Act layer's target).
-  await db.execute(sql`
-    CREATE TABLE IF NOT EXISTS app.campaign_actions_app (
+    )`,
+    sql`CREATE INDEX IF NOT EXISTS feedback_message_idx ON app.feedback (message_id)`,
+    // Writable operational table (the Act layer's target).
+    sql`CREATE TABLE IF NOT EXISTS app.campaign_actions_app (
       id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
       campaign_id text NOT NULL,
       action_type text NOT NULL,
@@ -81,13 +79,11 @@ export async function runMigrations(db: AppDb): Promise<void> {
       audit_trail jsonb NOT NULL DEFAULT '[]'::jsonb,
       created_at timestamptz NOT NULL DEFAULT now(),
       decided_at timestamptz
-    )`);
-  await db.execute(sql`CREATE INDEX IF NOT EXISTS campaign_actions_campaign_idx ON app.campaign_actions_app (campaign_id)`);
-  await db.execute(sql`CREATE INDEX IF NOT EXISTS campaign_actions_created_idx ON app.campaign_actions_app (created_at)`);
-
-  // Observability / state table (Build-2 challenge).
-  await db.execute(sql`
-    CREATE TABLE IF NOT EXISTS app.workflow_events (
+    )`,
+    sql`CREATE INDEX IF NOT EXISTS campaign_actions_campaign_idx ON app.campaign_actions_app (campaign_id)`,
+    sql`CREATE INDEX IF NOT EXISTS campaign_actions_created_idx ON app.campaign_actions_app (created_at)`,
+    // Observability / state table (Build-2 challenge).
+    sql`CREATE TABLE IF NOT EXISTS app.workflow_events (
       id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
       event_type text NOT NULL,
       occurred_at timestamptz NOT NULL DEFAULT now(),
@@ -96,20 +92,47 @@ export async function runMigrations(db: AppDb): Promise<void> {
       action_id uuid,
       payload jsonb NOT NULL DEFAULT '{}'::jsonb,
       created_at timestamptz NOT NULL DEFAULT now()
-    )`);
-  await db.execute(sql`CREATE INDEX IF NOT EXISTS workflow_events_type_idx ON app.workflow_events (event_type, occurred_at)`);
-  await db.execute(sql`CREATE INDEX IF NOT EXISTS workflow_events_campaign_idx ON app.workflow_events (campaign_id)`);
+    )`,
+    sql`CREATE INDEX IF NOT EXISTS workflow_events_type_idx ON app.workflow_events (event_type, occurred_at)`,
+    sql`CREATE INDEX IF NOT EXISTS workflow_events_campaign_idx ON app.workflow_events (campaign_id)`,
+    // REPLICA IDENTITY FULL for the Build-1 schema-level CDF on `app`.
+    sql`ALTER TABLE app.conversations REPLICA IDENTITY FULL`,
+    sql`ALTER TABLE app.messages REPLICA IDENTITY FULL`,
+    sql`ALTER TABLE app.feedback REPLICA IDENTITY FULL`,
+    sql`ALTER TABLE app.campaign_actions_app REPLICA IDENTITY FULL`,
+    sql`ALTER TABLE app.workflow_events REPLICA IDENTITY FULL`,
+  ];
 
-  // REPLICA IDENTITY FULL for the Build-1 schema-level CDF on `app`. Tolerant:
-  // on the deployed SP a table may be owned by the dev user (already set FULL),
-  // and ALTER requires ownership — a failure is benign, so log + continue.
-  for (const t of ['conversations', 'messages', 'feedback', 'campaign_actions_app', 'workflow_events']) {
+  let skipped = 0;
+  for (const stmt of statements) {
     try {
-      await db.execute(sql.raw(`ALTER TABLE app.${t} REPLICA IDENTITY FULL`));
+      await db.execute(stmt);
     } catch (e) {
-      console.warn(
-        `[schema] REPLICA IDENTITY FULL on app.${t} skipped (${(e as Error).message.split('\n')[0]})`,
-      );
+      skipped++;
+      console.warn(`[schema] idempotent DDL skipped: ${(e as Error).message.split('\n')[0]}`);
     }
+  }
+
+  // Fail boot only if the schema truly isn't provisioned; otherwise the skips
+  // above are just "already exists / not owner on the shared DB".
+  if (!(await allAppTablesExist(db))) {
+    throw new Error('[schema] required app.* tables are missing after the ensure step');
+  }
+  if (skipped) {
+    console.warn(
+      `[schema] ${skipped} idempotent DDL statement(s) skipped (already provisioned / not table owner on the shared Lakebase) — schema verified present.`,
+    );
+  }
+}
+
+/** True when every table the app owns already exists in schema `app`. */
+async function allAppTablesExist(db: AppDb): Promise<boolean> {
+  const need = ['conversations', 'messages', 'feedback', 'campaign_actions_app', 'workflow_events'];
+  try {
+    const rows = await db.execute(sql`SELECT tablename FROM pg_tables WHERE schemaname = 'app'`);
+    const have = new Set((rows.rows as { tablename: string }[]).map((r) => r.tablename));
+    return need.every((t) => have.has(t));
+  } catch {
+    return false;
   }
 }

@@ -1,0 +1,11 @@
+* 36f354c (HEAD -> dev-tkop) Fix (post-review): scatter perf/data, Campaign Desk fetch split, generic Home + correct agent-loop diagram
+* 9648d20 Layer 3: Act — execute_campaign_action + recordCampaignAction (closed loop)
+* befa67c Layer 1 refactor: drop the ORM migrator — idempotent Lakebase DDL instead
+* 6ab4c4a Layer 2: Assist — find_underperformer / rank_actions / search_creatives
+* b530500 Layer 1 fix: tolerant runMigrations — use provisioned Build-1 app.* tables
+* cf14798 Layer 1b: Visualize client (Campaign Desk) + table-update Job + analytics
+* 1264850 Layer 1a: workflow_events + Campaign Desk server reads + evidence #3
+* 243ff84 Layer 0: wire Build-1 Lakebase/Genie/dashboard + repoint reads to synced.*
+* abd0a87 Layer 0: reconstitute AppKit base from databricks-solution-builder app_template
+* feba666 (origin/main, origin/HEAD, main) Initial Template Download
+* 51de0eb Initial commit

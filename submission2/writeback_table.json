@@ -1,0 +1,23 @@
+[
+  {
+    "id": "c6021f0f-6345-4033-a561-1d3fad45bba8",
+    "campaign_id": "CMP-0000214",
+    "action_type": "replicate_winner",
+    "target_campaign_id": "CMP-0000634",
+    "status": "approved",
+    "approved_by": "local_user@databricks.com",
+    "predicted_roas_lift": 2.2343,
+    "drafted_brief_preview": "Objective: Recover performance in CMP-0000214 by shifting from the current weak setup into the proven winning pattern for this audience: social + testimonial creative.\n\nAudience: Gen Z apparel audience currently targeted by CMP-0000214.\n\nChannel strategy: Launch on social as the primary channel. Prioritize mobile-first placements and fast-scanning formats.\n\nCreative direction: Lead with testimonia",
+    "audit_trail": [
+      {
+        "at": "2026-08-28T18:49:43.826Z",
+        "by": "local_user@databricks.com",
+        "tool": "execute_campaign_action",
+        "notes": "Campaign action recorded",
+        "action": "approved"
+      }
+    ],
+    "created_at": "2026-08-28T18:49:43.826+00:00",
+    "decided_at": "2026-08-28T18:49:44.074+00:00"
+  }
+]
