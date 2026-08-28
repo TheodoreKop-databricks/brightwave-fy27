@@ -1,0 +1,58 @@
+{
+  "feature": "Lakebase Search (BM25 full-text via lakebase_text)",
+  "extensions_enabled": [
+    "vector",
+    "lakebase_vector",
+    "lakebase_text"
+  ],
+  "table": "app.creatives_search",
+  "index": "creatives_search_bm25 USING lakebase_bm25 (description_tsv)",
+  "tsvector_column": "GENERATED ALWAYS AS (to_tsvector('english', coalesce(creative_name,'') || ' ' || coalesce(description,'') || ' ' || coalesce(angle,'')))",
+  "query": {
+    "natural_language": "high-energy social lifestyle creative for gen-Z apparel",
+    "sql": "SELECT creative_id, creative_name, creative_type, angle, description, description_tsv <@> to_bm25query(to_tsvector('english', 'high-energy social lifestyle creative for gen-Z apparel'), 'app.creatives_search_bm25') AS bm25_score FROM app.creatives_search ORDER BY bm25_score LIMIT 10;"
+  },
+  "results": [
+    {
+      "creative_id": "CRE-00031",
+      "creative_name": "lifestyle image 31",
+      "creative_type": "image",
+      "angle": "lifestyle",
+      "description": "lifestyle image creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
+      "bm25_score": -3.278
+    },
+    {
+      "creative_id": "CRE-00019",
+      "creative_name": "lifestyle carousel 19",
+      "creative_type": "carousel",
+      "angle": "lifestyle",
+      "description": "lifestyle carousel creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
+      "bm25_score": -3.278
+    },
+    {
+      "creative_id": "CRE-00025",
+      "creative_name": "lifestyle copy 25",
+      "creative_type": "copy",
+      "angle": "lifestyle",
+      "description": "lifestyle copy creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
+      "bm25_score": -3.278
+    },
+    {
+      "creative_id": "CRE-00016",
+      "creative_name": "lifestyle video 16",
+      "creative_type": "video",
+      "angle": "lifestyle",
+      "description": "lifestyle video creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
+      "bm25_score": -3.278
+    },
+    {
+      "creative_id": "CRE-00018",
+      "creative_name": "lifestyle carousel 18",
+      "creative_type": "carousel",
+      "angle": "lifestyle",
+      "description": "lifestyle carousel creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
+      "bm25_score": -3.278
+    }
+  ],
+  "notes": "BM25 score is negative (lower = more relevant). All top results are lifestyle angle creatives with descriptions mentioning 'social' and 'younger segments' \u2014 strong match for the gen-Z apparel query."
+}

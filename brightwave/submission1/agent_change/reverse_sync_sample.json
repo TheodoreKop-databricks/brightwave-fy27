@@ -1,0 +1,72 @@
+{
+  "table": "brightwave_techsummit27_catalog.lakebase_cdc.lb_campaign_actions_app_history",
+  "source": "Lakebase CDF (Lakehouse Sync)",
+  "cdf_config": "projects/brightwave-campaign-desk/branches/production/databases/db-rdqm-ocqwpsc3po/cdf-configs/app",
+  "postgres_schema": "app",
+  "scd2_columns": [
+    "_pg_change_type",
+    "_pg_lsn",
+    "_pg_xid",
+    "_timestamp",
+    "_sort_by"
+  ],
+  "change_types_observed": [
+    "insert",
+    "update_postimage",
+    "update_preimage"
+  ],
+  "row_count": 7,
+  "sample_rows": [
+    {
+      "_pg_change_type": "insert",
+      "_pg_lsn": 41873880,
+      "_pg_xid": 5167,
+      "_timestamp": "2026-08-28 21:00:34.016886",
+      "_sort_by": 6,
+      "campaign_id": "CMP-0000871",
+      "action_type": "pause",
+      "predicted_roas_lift": 0.0,
+      "status": "executed",
+      "priority_score": 0.31
+    },
+    {
+      "_pg_change_type": "update_postimage",
+      "_pg_lsn": 41872200,
+      "_pg_xid": 5165,
+      "_timestamp": "2026-08-28 21:00:23.822328",
+      "_sort_by": 5,
+      "campaign_id": "CMP-0000763",
+      "action_type": "replicate_winner",
+      "predicted_roas_lift": 1.85,
+      "status": "approved",
+      "approved_by": "priya.anand@brightwave.com",
+      "priority_score": 0.95
+    },
+    {
+      "_pg_change_type": "update_preimage",
+      "_pg_lsn": 41872200,
+      "_pg_xid": 5165,
+      "_timestamp": "2026-08-28 21:00:23.822299",
+      "_sort_by": 4,
+      "campaign_id": "CMP-0000763",
+      "action_type": "replicate_winner",
+      "predicted_roas_lift": 1.85,
+      "status": "proposed",
+      "approved_by": null,
+      "priority_score": 0.78
+    },
+    {
+      "_pg_change_type": "insert",
+      "_pg_lsn": 41870680,
+      "_pg_xid": 5163,
+      "_timestamp": "2026-08-28 21:00:13.470188",
+      "_sort_by": 3,
+      "campaign_id": "CMP-0000763",
+      "action_type": "replicate_winner",
+      "predicted_roas_lift": 1.85,
+      "status": "proposed",
+      "approved_by": null,
+      "priority_score": 0.78
+    }
+  ]
+}
