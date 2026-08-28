@@ -28,14 +28,10 @@ cd "$APP_DIR"
 echo "[build-app] installing npm dependencies (incl. dev)…"
 npm install --include=dev
 
-# Generate the Drizzle SQL migrations from schema.ts. This does NOT happen via
-# `build:source` (npm only auto-runs `prebuild` before a script named exactly
-# `build`, not `build:source`), and `drizzle/` is gitignored — so on the DAB
-# path it would otherwise never be produced NOR shipped, and the deployed
-# container's runMigrations() 503s with "No Drizzle migrations folder found".
-# Generate it here so it lands next to dist/ and the DAB sync.include ships it.
-echo "[build-app] generating Drizzle migrations (db:generate)…"
-npm run db:generate
+# NOTE: no `db:generate` step. This app does NOT use the drizzle-kit ORM
+# migrator — server/db/migrate.ts applies idempotent CREATE ... IF NOT EXISTS
+# DDL for the app.* tables at boot (Build 1 provisions the Lakebase schema), so
+# there are no migration SQL files to generate or ship.
 
 echo "[build-app] building server + client…"
 npm run build:source
