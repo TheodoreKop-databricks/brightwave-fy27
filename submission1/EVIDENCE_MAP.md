@@ -24,7 +24,7 @@ execution evidence in this folder.
 
 | Focus item | Construct (code) | Execution evidence |
 |------------|------------------|--------------------|
-| Operational schema modeled for the domain (related tables + keys) | `operational_schema.sql` — 6 tables, PKs, 3 FKs (conversations→messages→feedback; campaign_actions_app←workflow_events) | `operational_schema_result.json` — live PK/FK constraints queried from information_schema (proves the schema + keys ran); `writable_tables_result.json` (rows) |
+| Operational schema modeled for the domain (related tables + keys) | `operational_schema.sql` — 6 tables, PKs, 3 FKs (conversations→messages→feedback; campaign_actions_app←workflow_events) | **`operational_schema_execution.md`** — live transcript: idempotent DDL re-run ("already exists, skipping") + `\d` describe showing PK/FK/Referenced-by + row counts; plus `operational_schema_result.json` (constraints) and `writable_tables_result.json` (rows) |
 | Separate writable Postgres tables (distinct from read-only synced.*) ran | `operational_schema.sql` | `writable_tables_result.json` — 6 app.* tables with row counts + sample |
 | Sync defined as code (not UI-only) | `sync_as_code.sh` (forward UC→PG synced tables), `lakebase_cdf.tf` (reverse PG→UC Terraform) | `synced_status.json` — 4 synced tables ONLINE |
 | Dev branch off main named + creation in code | `branch.txt` (names dev-tkop off main + inline git & Lakebase create calls), `create_branches.sh` (`git checkout -b dev-tkop main` + `create-branch`) | `git_history.txt` (dev-tkop off main + merge), `branches_result.json` (dev-tkop READY) |
