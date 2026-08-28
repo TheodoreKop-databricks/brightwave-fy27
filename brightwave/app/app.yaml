@@ -32,15 +32,32 @@ env:
   - name: NODE_ENV
     value: production
 
-  # ── Binding-derived ─────────────────────────────────────────────────
-  # AppKit's ResourceRegistry expects DATABRICKS_WAREHOUSE_ID and the
-  # standard PG* vars from the postgres binding (PGHOST/PGDATABASE/PGUSER
-  # /PGPORT/PGSSLMODE are auto-injected by the platform).
+  # ── Interactive-deploy env (plain values) ───────────────────────────
+  # This app is deployed interactively (`databricks apps deploy`, no DAB
+  # binding), so `valueFrom:` refs can't resolve — the resource vars are
+  # plain values here (and mirrored in the shipped .env, which the command
+  # loads via --env-file-if-exists). PGUSER is NOT set: getUsernameWithApiLookup
+  # falls back to the app SP's DATABRICKS_CLIENT_ID. Lakebase auth is OAuth
+  # (LAKEBASE_ENDPOINT → generate-database-credential); no PGPASSWORD.
   - name: DATABRICKS_WAREHOUSE_ID
-    valueFrom: sql-warehouse
-  - name: LAKEBASE_ENDPOINT
-    valueFrom: postgres
-  # Mirror DATABRICKS_WAREHOUSE_ID into WAREHOUSE_ID for config/app.json
-  # placeholder resolution.
+    value: '01083f0176292242'
   - name: WAREHOUSE_ID
-    valueFrom: sql-warehouse
+    value: '01083f0176292242'
+  - name: DEMO_CATALOG
+    value: 'brightwave_techsummit27_catalog'
+  - name: DEMO_SCHEMA
+    value: 'brightwave'
+  - name: DASHBOARD_ID
+    value: '01f1a26fed4516b98df68d6ff9e84d65'
+  - name: GENIE_SPACE_ID
+    value: '01f1a26fadc51614a203f762ffb368d4'
+  - name: LAKEBASE_ENDPOINT
+    value: 'projects/brightwave-campaign-desk/branches/production/endpoints/primary'
+  - name: PGHOST
+    value: 'ep-delicate-mountain-d8kizg3e.database.us-east-2.cloud.databricks.com'
+  - name: PGDATABASE
+    value: 'brightwave_lakebase_tkop'
+  - name: PGPORT
+    value: '5432'
+  - name: PGSSLMODE
+    value: 'require'

@@ -72,7 +72,8 @@ import * as mlflow from 'mlflow-tracing';
 
 import { createDb } from './db/index.js';
 import { runMigrations } from './db/migrate.js';
-import { syncFromDelta } from './db/sync.js';
+// Build 2: no boot-time Delta→Lakebase mirror — reads hit the managed
+// synced.* tables directly. sync.ts now only exposes the writable-state reset.
 import { ensureMlflowExperiment } from './lib/mlflow.js';
 
 import { registerConfigRoutes } from './routes/config.js';
@@ -593,16 +594,13 @@ const mlflowIdPromise = (async () => {
   }
 })();
 
-// Migrations → sync → then activate MLflow tracing. The promise here is
-// what the /api gate middleware awaits.
+// Migrations → then activate MLflow tracing. The promise here is what the
+// /api gate middleware awaits. NB: no Delta→Lakebase sync — the read-only
+// mirrors are managed synced.* tables (Build 1) that the app only SELECTs.
 migrationsReady = (async () => {
   try {
     await runMigrations(db);
-    console.log(`[boot +${ms()}] Migrations up to date`);
-    if (appConfig.data) {
-      await syncFromDelta(db, appConfig.data);
-      console.log(`[boot +${ms()}] Delta sync done`);
-    }
+    console.log(`[boot +${ms()}] Migrations up to date (app.* only; synced.* is managed)`);
     migrationsDone = true;
   } catch (e) {
     // Real bug — the LLM customizing the template needs to act on this.

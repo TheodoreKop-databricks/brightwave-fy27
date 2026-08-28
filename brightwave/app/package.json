@@ -9,7 +9,7 @@
     "build:client": "tsc -b tsconfig.client.json && vite build --config client/vite.config.ts",
     "build:server": "tsc -b tsconfig.server.json && tsdown -c tsdown.server.config.ts",
     "build:source": "npm run build:server && npm run build:client",
-    "build": "echo '[build] no-op — dist/ + client/dist/ are pre-built locally by scripts/build-app.sh and shipped via DAB sync.include. Use `npm run build:source` to rebuild from source.'",
+    "build": "echo '[build] no-op \u2014 dist/ + client/dist/ are pre-built locally by scripts/build-app.sh and shipped via DAB sync.include. Use `npm run build:source` to rebuild from source.'",
     "typecheck": "tsc -b tsconfig.server.json && tsc -b tsconfig.client.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -27,7 +27,7 @@
     "sync": "appkit plugin sync --write --silent",
     "typegen": "appkit generate-types",
     "setup": "appkit setup --write",
-    "db:generate": "drizzle-kit generate --config drizzle.config.ts && node -e 'const fs=require(\"fs\");for(const f of fs.readdirSync(\"drizzle\").filter(n=>n.endsWith(\".sql\"))){const p=\"drizzle/\"+f,b=fs.readFileSync(p,\"utf8\"),a=b.split(\"CREATE SCHEMA \\\"\").join(\"CREATE SCHEMA IF NOT EXISTS \\\"\");if(a!==b)fs.writeFileSync(p,a)}'"
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts && node scripts/make-migrations-idempotent.mjs"
   },
   "keywords": [],
   "author": "",
