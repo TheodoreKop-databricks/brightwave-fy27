@@ -1,4 +1,5 @@
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { sql } from 'drizzle-orm';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import type { AppDb } from './index.js';
@@ -32,4 +33,24 @@ export async function runMigrations(db: AppDb): Promise<void> {
     );
   }
   await migrate(db, { migrationsFolder });
+  await applyPostMigrationDdl(db);
+}
+
+/**
+ * DDL that Drizzle can't express in the schema and must run after migrate().
+ * Idempotent + tolerant: on a shared DB the executing role may not own a table
+ * it didn't create (e.g. the app SP vs the dev user), in which case the ALTER
+ * is skipped with a warning rather than failing boot — whoever owns the table
+ * (or the orchestrator's grant flow) sets it, and setting it twice is a no-op.
+ */
+async function applyPostMigrationDdl(db: AppDb): Promise<void> {
+  // REPLICA IDENTITY FULL on app.workflow_events — required for the Build-1
+  // schema-level CDF on `app` to stream full row images to UC.
+  try {
+    await db.execute(sql`ALTER TABLE app.workflow_events REPLICA IDENTITY FULL`);
+  } catch (e) {
+    console.warn(
+      `[migrate] could not set REPLICA IDENTITY FULL on app.workflow_events (likely not the table owner on a shared DB) — ${(e as Error).message}`,
+    );
+  }
 }

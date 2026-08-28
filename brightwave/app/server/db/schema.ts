@@ -175,6 +175,46 @@ export const campaignActions = appSchema.table(
 );
 
 // ============================================================================
+// Observability / state table (the app also writes here — Build-2 challenge)
+//
+// `workflow_events` is the state/observability log of the decision loop:
+//   - a `scoring_trigger` row per table-update Job firing (actor 'system:job',
+//     payload {campaigns_scored, underperformers_flagged, winners})
+//   - a `decision` row per approved action (actor = approver email, campaign_id,
+//     action_id → campaign_actions_app.id, payload {action_type, predicted_roas_lift})
+// REPLICA IDENTITY FULL is set post-migration (see server/db/migrate.ts) so the
+// Build-1 schema-level CDF on `app` streams full row images to UC.
+// ============================================================================
+
+export const workflowEvents = appSchema.table(
+  'workflow_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // 'scoring_trigger' | 'decision'
+    eventType: text('event_type').notNull(),
+    occurredAt: timestamp('occurred_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    // 'system:job' for triggers, approver email for decisions.
+    actor: text('actor'),
+    // set on decisions
+    campaignId: text('campaign_id'),
+    // links to campaign_actions_app.id (decisions)
+    actionId: uuid('action_id'),
+    // trigger: {campaigns_scored, underperformers_flagged, winners};
+    // decision: {action_type, predicted_roas_lift}
+    payload: jsonb('payload').$type<Record<string, unknown>>().notNull().default({}),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index('workflow_events_type_idx').on(t.eventType, t.occurredAt),
+    index('workflow_events_campaign_idx').on(t.campaignId),
+  ],
+);
+
+// ============================================================================
 // JSONB entry shapes
 // ============================================================================
 
