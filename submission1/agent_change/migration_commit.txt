@@ -1,0 +1,13 @@
+commit cb568384378c370db274b970efa69870e83b450d
+Author: theodore.kop@databricks.com <theodore.kop@databricks.com>
+Date:   Fri Aug 28 20:34:27 2026 +0000
+
+feat: add priority_score column to campaign_actions_app\n\nMigration 001_add_priority_score adds a DOUBLE PRECISION column\nfor agent-computed action prioritization. Validated on Lakebase\ndev-tkop branch, promoted to production.\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>
+
+
+
+ brightwave/resources.json                          |  5 ++-
+ .../agent_change/001_add_priority_score.sql        | 11 ++++++
+ .../submission1/agent_change/promotion_proof.md    | 34 ++++++++++++++++++
+ .../agent_change/validation_dev_branch.md          | 40 ++++++++++++++++++++++
+ 4 files changed, 89 insertions(+), 1 deletion(-)

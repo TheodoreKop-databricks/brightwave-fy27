@@ -1,0 +1,25 @@
+BUILD 1 · EVIDENCE #1 — Lakebase instance name + connectivity check
+====================================================================
+
+Lakebase (Postgres Autoscaling) instance
+-----------------------------------------
+  Project (instance name) : brightwave-campaign-desk
+  Workspace               : https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com
+  Postgres database       : brightwave_lakebase_tkop
+  UC-registered catalog   : brightwave_lakebase_tkop
+  Branches                : production (root), dev-tkop (off production)
+  Endpoints (primary, read-write):
+    production : ep-delicate-mountain-d8kizg3e.database.us-east-2.cloud.databricks.com
+    dev-tkop   : ep-restless-tooth-d8b0vmys.database.us-east-2.cloud.databricks.com
+
+Connectivity check
+------------------
+  $ databricks psql --project brightwave-campaign-desk --branch production -- \
+        -d brightwave_lakebase_tkop -c "SELECT version();"
+
+  version
+  ------------------------------------------------------------------------------------------------
+  PostgreSQL 17.11 (32e7196) on x86_64-pc-linux-gnu, compiled by gcc
+  (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+
+Result: connection succeeded — the instance is reachable and serving Postgres 17.11.

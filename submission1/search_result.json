@@ -1,66 +1,66 @@
 [
     {
+        "angle": "lifestyle",
+        "bm25_score": -4.4758,
         "creative_id": "CRE-00081",
+        "description": "lifestyle image creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
         "creative_name": "lifestyle image 81",
-        "creative_type": "image",
-        "angle": "lifestyle",
-        "description": "lifestyle image creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
-        "bm25_score": -3.9872
+        "creative_type": "image"
     },
     {
+        "angle": "lifestyle",
+        "bm25_score": -4.4758,
         "creative_id": "CRE-00311",
-        "creative_name": "lifestyle carousel 311",
-        "creative_type": "carousel",
-        "angle": "lifestyle",
         "description": "lifestyle carousel creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
-        "bm25_score": -3.9872
+        "creative_name": "lifestyle carousel 311",
+        "creative_type": "carousel"
     },
     {
+        "angle": "lifestyle",
+        "bm25_score": -4.4758,
         "creative_id": "CRE-00349",
+        "description": "lifestyle image creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
         "creative_name": "lifestyle image 349",
-        "creative_type": "image",
-        "angle": "lifestyle",
-        "description": "lifestyle image creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
-        "bm25_score": -3.9872
+        "creative_type": "image"
     },
     {
+        "angle": "lifestyle",
+        "bm25_score": -4.4758,
         "creative_id": "CRE-00308",
+        "description": "lifestyle copy creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
         "creative_name": "lifestyle copy 308",
-        "creative_type": "copy",
-        "angle": "lifestyle",
-        "description": "lifestyle copy creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
-        "bm25_score": -3.9872
+        "creative_type": "copy"
     },
     {
+        "angle": "lifestyle",
+        "bm25_score": -4.4758,
         "creative_id": "CRE-00177",
+        "description": "lifestyle image creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
         "creative_name": "lifestyle image 177",
-        "creative_type": "image",
-        "angle": "lifestyle",
-        "description": "lifestyle image creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
-        "bm25_score": -3.9872
+        "creative_type": "image"
     },
     {
+        "angle": "lifestyle",
+        "bm25_score": -4.4758,
         "creative_id": "CRE-00004",
-        "creative_name": "lifestyle copy 4",
-        "creative_type": "copy",
-        "angle": "lifestyle",
         "description": "lifestyle copy creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
-        "bm25_score": -3.9872
+        "creative_name": "lifestyle copy 4",
+        "creative_type": "copy"
     },
     {
+        "angle": "lifestyle",
+        "bm25_score": -4.4758,
         "creative_id": "CRE-00325",
-        "creative_name": "lifestyle image 325",
-        "creative_type": "image",
-        "angle": "lifestyle",
         "description": "lifestyle image creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
-        "bm25_score": -3.9872
+        "creative_name": "lifestyle image 325",
+        "creative_type": "image"
     },
     {
-        "creative_id": "CRE-00223",
-        "creative_name": "lifestyle video 223",
-        "creative_type": "video",
         "angle": "lifestyle",
+        "bm25_score": -4.4758,
+        "creative_id": "CRE-00223",
         "description": "lifestyle video creative. Aspirational lifestyle imagery; the highest-performing angle on social for younger segments.",
-        "bm25_score": -3.9872
+        "creative_name": "lifestyle video 223",
+        "creative_type": "video"
     }
 ]

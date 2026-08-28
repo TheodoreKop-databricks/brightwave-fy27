@@ -1,0 +1,84 @@
+{
+    "branch": "production",
+    "schema": "app (writable, distinct from read-only synced.*)",
+    "captured_at": "2026-08-28 21:50:45.057887+00",
+    "writable_tables": [
+        {
+            "row_count": 5,
+            "table_name": "campaign_actions_app"
+        },
+        {
+            "row_count": 4,
+            "table_name": "conversations"
+        },
+        {
+            "row_count": 400,
+            "table_name": "creatives_search"
+        },
+        {
+            "row_count": 1,
+            "table_name": "feedback"
+        },
+        {
+            "row_count": 28,
+            "table_name": "messages"
+        },
+        {
+            "row_count": 4,
+            "table_name": "workflow_events"
+        }
+    ],
+    "proof_write_path": "rows below were INSERTed/UPDATEd by the Campaign Desk app (proposed->approved->executed); synced.* is read-only and cannot be written",
+    "sample_campaign_actions": [
+        {
+            "id": "0cf53880-f3c2-4388-83d4-71cbccc7ebb3",
+            "status": "executed",
+            "created_at": "2026-08-28 21:00:34.013705+00",
+            "decided_at": null,
+            "action_type": "pause",
+            "approved_by": null,
+            "campaign_id": "CMP-0000871",
+            "priority_score": 0.31
+        },
+        {
+            "id": "e00e2e1c-95ae-425f-ac03-25e219fde7d3",
+            "status": "approved",
+            "created_at": "2026-08-28 21:00:13.464961+00",
+            "decided_at": "2026-08-28 21:00:23.817146+00",
+            "action_type": "replicate_winner",
+            "approved_by": "priya.anand@brightwave.com",
+            "campaign_id": "CMP-0000763",
+            "priority_score": 0.95
+        },
+        {
+            "id": "d2b99d39-a798-474c-a050-8630ca80b705",
+            "status": "approved",
+            "created_at": "2026-08-28 19:27:04.173+00",
+            "decided_at": "2026-08-28 19:27:04.179+00",
+            "action_type": "reallocate_budget",
+            "approved_by": "theodore.kop@databricks.com",
+            "campaign_id": "CMP-0001141",
+            "priority_score": null
+        },
+        {
+            "id": "f749881e-a0fd-44ad-8b45-63a825c96b46",
+            "status": "approved",
+            "created_at": "2026-08-28 19:21:56.057+00",
+            "decided_at": "2026-08-28 19:21:56.064+00",
+            "action_type": "replicate_winner",
+            "approved_by": "theodore.kop@databricks.com",
+            "campaign_id": "CMP-0000214",
+            "priority_score": null
+        },
+        {
+            "id": "c6021f0f-6345-4033-a561-1d3fad45bba8",
+            "status": "approved",
+            "created_at": "2026-08-28 18:49:43.826+00",
+            "decided_at": "2026-08-28 18:49:44.074+00",
+            "action_type": "replicate_winner",
+            "approved_by": "local_user@databricks.com",
+            "campaign_id": "CMP-0000214",
+            "priority_score": null
+        }
+    ]
+}

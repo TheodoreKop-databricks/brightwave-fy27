@@ -1,0 +1,32 @@
+* 8aa21d9 (HEAD -> main, origin/main, origin/HEAD) cleaning build 1 submissions
+* 2958f27 feat: domain question — top-5 underperformers with model recommendations\n\nJoins synced.campaign_position, open_underperformers, action_recommendations\non production Lakebase. Answers: recoverable spend, recommended action,\npredicted ROAS lift, and matching winner to replicate.\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>"
+* ef7c9d5 feat: Lakebase Search (BM25) on creatives description\n\n- Extensions: vector, lakebase_vector, lakebase_text\n- Writable app.creatives_search with generated tsvector column\n- lakebase_bm25 index for full-text BM25 ranking\n- Query: 'high-energy social lifestyle creative for gen-Z apparel'\n- Top-10 results: all lifestyle angle creatives (social/younger segments)\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>"
+* a9cab83 feat: Lakebase CDF reverse sync + submission artifacts\n\n- lakebase_cdf.tf: Terraform resource for postgres->Delta CDC\n- reverse_sync_sample.json: SCD2 proof (insert/update_preimage/update_postimage)\n- REPLICA IDENTITY FULL on all app schema tables\n- CDF config: app -> brightwave_techsummit27_catalog.lakebase_cdc\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>"
+*   eb8434a Merge pull request #1 from TheodoreKop-databricks/app-build
+|\  
+| * 132a8e6 (origin/app-build, dev-tkop, app-build) App work - Build 2
+| * 7238c65 Fix: neutralize .databrickscfg PAT for MLflow exporter (oauth+pat conflict)
+| * eafa046 Fix: agent uses SP token for model + Genie (unblocks deployed 403); reset via DELETE
+| * a5a9114 Evidence: refresh git_history.txt (final layer-by-layer graph)
+| * 1a8673b Fix: make idempotent schema DDL tolerant of shared-DB table ownership
+| * 36f354c Fix (post-review): scatter perf/data, Campaign Desk fetch split, generic Home + correct agent-loop diagram
+| * 9648d20 Layer 3: Act — execute_campaign_action + recordCampaignAction (closed loop)
+| * befa67c Layer 1 refactor: drop the ORM migrator — idempotent Lakebase DDL instead
+| * 6ab4c4a Layer 2: Assist — find_underperformer / rank_actions / search_creatives
+| * b530500 Layer 1 fix: tolerant runMigrations — use provisioned Build-1 app.* tables
+| * cf14798 Layer 1b: Visualize client (Campaign Desk) + table-update Job + analytics
+| * 1264850 Layer 1a: workflow_events + Campaign Desk server reads + evidence #3
+| * 243ff84 Layer 0: wire Build-1 Lakebase/Genie/dashboard + repoint reads to synced.*
+| * abd0a87 Layer 0: reconstitute AppKit base from databricks-solution-builder app_template
+* | bff0431 merge: dev-tkop -> main (priority_score migration)\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>"
+* |   690f07a Merge branch 'dev-tkop' into main
+|\ \  
+| | | * 2f787da (origin/dev-tkop) feat(dev-tkop): add Lakebase artifacts — CDF, search, domain question\n\n- lakebase_cdf.tf: Terraform resource for app schema reverse sync\n- reverse_sync_sample.json: SCD2 CDC proof (insert/update_pre/post)\n- lakebase_search_results.json: BM25 search results for gen-Z apparel\n- domain_question.json: top-5 underperformers with model recommendations\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>"
+| | |/  
+| |/|   
+| * | cb56838 feat: add priority_score column to campaign_actions_app\n\nMigration 001_add_priority_score adds a DOUBLE PRECISION column\nfor agent-computed action prioritization. Validated on Lakebase\ndev-tkop branch, promoted to production.\n\nAuthored-by: Genie-Code-Agent <theodore.kop@databricks.com>
+|/ /  
+* / d8f66c1 Pre- work complete
+|/  
+* feba666 Initial Template Download
+* 51de0eb Initial commit

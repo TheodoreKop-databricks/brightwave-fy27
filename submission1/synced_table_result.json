@@ -1,0 +1,22 @@
+[
+    {
+        "roas": 4.96,
+        "channel": "social",
+        "category": "apparel",
+        "perf_band": "winner",
+        "campaign_id": "CMP-0000634",
+        "campaign_name": "Apparel Social Q2",
+        "target_segment": "gen_z",
+        "spend_to_date_usd": 182191.06
+    },
+    {
+        "roas": 1.10,
+        "channel": "display",
+        "category": "apparel",
+        "perf_band": "underperformer",
+        "campaign_id": "CMP-0000214",
+        "campaign_name": "Apparel Display Q2",
+        "target_segment": "gen_z",
+        "spend_to_date_usd": 187076.60
+    }
+]

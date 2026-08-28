@@ -1,0 +1,47 @@
+{
+  "note": "Forward sync UC Delta -> Lakebase Postgres (synced.* read-only mirror). Live status = execution evidence.",
+  "branch": "production",
+  "scheduling_policy": "TRIGGERED (continuous=false)",
+  "synced_tables": [
+    {
+      "synced_table": "synced.campaign_position",
+      "source_uc_table": "brightwave_techsummit27_catalog.brightwave.gold_campaign_position",
+      "primary_key": [
+        "campaign_id"
+      ],
+      "detailed_state": "SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE",
+      "pipeline_id": "86958dcd-68ab-4327-a129-9d370f02a464",
+      "last_sync_end": "2026-08-28T15:53:15.964372Z"
+    },
+    {
+      "synced_table": "synced.creatives",
+      "source_uc_table": "brightwave_techsummit27_catalog.brightwave.raw_creatives",
+      "primary_key": [
+        "creative_id"
+      ],
+      "detailed_state": "SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE",
+      "pipeline_id": "e1a0c4fc-ab53-42ef-be1b-067dc717f27b",
+      "last_sync_end": "2026-08-28T15:53:35.965974Z"
+    },
+    {
+      "synced_table": "synced.open_underperformers",
+      "source_uc_table": "brightwave_techsummit27_catalog.brightwave.gold_open_underperformers",
+      "primary_key": [
+        "campaign_id"
+      ],
+      "detailed_state": "SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE",
+      "pipeline_id": "9a56a78e-ba61-41d2-8f8d-fe0195a51b26",
+      "last_sync_end": "2026-08-28T15:53:38.007599Z"
+    },
+    {
+      "synced_table": "synced.action_recommendations",
+      "source_uc_table": "brightwave_techsummit27_catalog.brightwave.gold_action_recommendations",
+      "primary_key": [
+        "campaign_id"
+      ],
+      "detailed_state": "SYNCED_TABLE_ONLINE_NO_PENDING_UPDATE",
+      "pipeline_id": "a26eace2-57b2-4169-b019-fca1e72e434a",
+      "last_sync_end": "2026-08-28T15:53:51.399668Z"
+    }
+  ]
+}

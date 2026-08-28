@@ -1,0 +1,61 @@
+{
+    "note": "Execution evidence: the modeled operational schema RAN — these PK/FK constraints and columns exist live on the production branch (queried from information_schema).",
+    "branch": "production",
+    "schema": "app",
+    "tables": [
+        {
+            "columns": 12,
+            "table_name": "campaign_actions_app",
+            "primary_key": "id"
+        },
+        {
+            "columns": 6,
+            "table_name": "conversations",
+            "primary_key": "id"
+        },
+        {
+            "columns": 8,
+            "table_name": "creatives_search",
+            "primary_key": "creative_id"
+        },
+        {
+            "columns": 8,
+            "table_name": "feedback",
+            "primary_key": "id"
+        },
+        {
+            "columns": 10,
+            "table_name": "messages",
+            "primary_key": "id"
+        },
+        {
+            "columns": 8,
+            "table_name": "workflow_events",
+            "primary_key": "id"
+        }
+    ],
+    "captured_at": "2026-08-28 22:09:58.885145+00",
+    "foreign_keys": [
+        {
+            "table_name": "feedback",
+            "column_name": "message_id",
+            "constraint_name": "feedback_message_id_messages_id_fk",
+            "references_table": "messages",
+            "references_column": "id"
+        },
+        {
+            "table_name": "messages",
+            "column_name": "conversation_id",
+            "constraint_name": "messages_conversation_id_conversations_id_fk",
+            "references_table": "conversations",
+            "references_column": "id"
+        },
+        {
+            "table_name": "workflow_events",
+            "column_name": "action_id",
+            "constraint_name": "fk_workflow_events_action",
+            "references_table": "campaign_actions_app",
+            "references_column": "id"
+        }
+    ]
+}

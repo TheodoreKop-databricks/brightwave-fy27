@@ -1,9 +1,9 @@
 {
   "table": "brightwave_techsummit27_catalog.lakebase_cdc.lb_campaign_actions_app_history",
-  "source": "Lakebase CDF (Lakehouse Sync)",
+  "source": "Lakebase CDF reverse sync (Postgres app schema -> Unity Catalog Delta, SCD Type 2)",
   "cdf_config": "projects/brightwave-campaign-desk/branches/production/databases/db-rdqm-ocqwpsc3po/cdf-configs/app",
   "postgres_schema": "app",
-  "scd2_columns": [
+  "scd2_system_columns": [
     "_pg_change_type",
     "_pg_lsn",
     "_pg_xid",
@@ -12,8 +12,8 @@
   ],
   "change_types_observed": [
     "insert",
-    "update_postimage",
-    "update_preimage"
+    "update_preimage",
+    "update_postimage"
   ],
   "row_count": 7,
   "sample_rows": [
@@ -93,7 +93,7 @@
       "predicted_roas_lift": 0.8899,
       "status": "approved",
       "approved_by": "theodore.kop@databricks.com",
-      "priority_score": NaN,
+      "priority_score": null,
       "created_at": "2026-08-28 19:27:04.173",
       "decided_at": "2026-08-28 19:27:04.179"
     },
@@ -109,7 +109,7 @@
       "predicted_roas_lift": 2.2343,
       "status": "approved",
       "approved_by": "theodore.kop@databricks.com",
-      "priority_score": NaN,
+      "priority_score": null,
       "created_at": "2026-08-28 19:21:56.057",
       "decided_at": "2026-08-28 19:21:56.064"
     },
@@ -125,7 +125,7 @@
       "predicted_roas_lift": 2.2343,
       "status": "approved",
       "approved_by": "local_user@databricks.com",
-      "priority_score": NaN,
+      "priority_score": null,
       "created_at": "2026-08-28 18:49:43.826",
       "decided_at": "2026-08-28 18:49:44.074"
     }
