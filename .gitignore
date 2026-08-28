@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ─────────────────────────────────────────────────────────────────────────
+# Databricks App (Node/React) — re-include source dirs mis-caught by the
+# Python `lib/` pattern (line 17) above. These are hand-written source, not
+# Python build output, and MUST be tracked.
+# ─────────────────────────────────────────────────────────────────────────
+!brightwave/app/server/lib/
+!brightwave/app/client/src/lib/
