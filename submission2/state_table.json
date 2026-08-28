@@ -1,0 +1,41 @@
+[
+    {
+        "id": "daa45a32-3c9a-4631-9dec-5f184e0c44c8",
+        "event_type": "scoring_trigger",
+        "actor": "system:job",
+        "campaign_id": null,
+        "action_id": null,
+        "payload": {
+            "winners": 60,
+            "campaigns_scored": 2000,
+            "underperformers_flagged": 89
+        },
+        "occurred_at": "2026-08-28T17:55:08.666268+00:00"
+    },
+    {
+        "id": "8856dfc4-cf6b-454e-b9ba-38c86d33a1c8",
+        "event_type": "decision",
+        "actor": "theodore.kop@databricks.com",
+        "campaign_id": "CMP-0000214",
+        "action_id": "f749881e-a0fd-44ad-8b45-63a825c96b46",
+        "payload": {
+            "action_type": "replicate_winner",
+            "target_campaign_id": "CMP-0000634",
+            "predicted_roas_lift": 2.2343
+        },
+        "occurred_at": "2026-08-28T19:21:56.05639+00:00"
+    },
+    {
+        "id": "c3c44af8-dc9f-4dda-8bfa-9a89c2c8f473",
+        "event_type": "decision",
+        "actor": "theodore.kop@databricks.com",
+        "campaign_id": "CMP-0001141",
+        "action_id": "d2b99d39-a798-474c-a050-8630ca80b705",
+        "payload": {
+            "action_type": "reallocate_budget",
+            "target_campaign_id": "CMP-0000634",
+            "predicted_roas_lift": 0.8899
+        },
+        "occurred_at": "2026-08-28T19:27:04.172517+00:00"
+    }
+]

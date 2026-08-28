@@ -1,0 +1,27 @@
+Build 1 · Step 4 — Lakebase Search (hybrid vector + full-text), BM25 full-text half.
+
+Extensions (loaded via shared_preload_libraries after enabling Lakebase Search on the project):
+  CREATE EXTENSION vector;            -- pgvector 0.8.0
+  CREATE EXTENSION lakebase_vector;   -- 1.1.0 (provides lakebase_ann)
+  CREATE EXTENSION lakebase_text;     -- 0.1.1 (provides lakebase_bm25)
+
+Searchable operational table (writable, seeded from the synced UC table synced.creatives):
+  app.creatives_search(creative_id PK, creative_name, creative_type, angle, description,
+                       search_tsv tsvector GENERATED ALWAYS AS
+                         (to_tsvector('english', description || ' ' || creative_name || ' ' || angle)) STORED)
+  CREATE INDEX creatives_search_bm25 ON app.creatives_search USING lakebase_bm25 (search_tsv);
+
+Natural-language query:
+  "lifestyle aspirational social creative for gen z apparel that drives conversions"
+
+SQL (BM25; operator returns negated score, so most-relevant = ORDER BY ASC):
+  SELECT creative_id, creative_name, creative_type, angle, description,
+         search_tsv <@> to_bm25query(to_tsvector('english', :q),
+                                      'app.creatives_search_bm25'::regclass) AS bm25_score
+  FROM app.creatives_search
+  ORDER BY search_tsv <@> to_bm25query(to_tsvector('english', :q),
+                                       'app.creatives_search_bm25'::regclass) ASC
+  LIMIT 8;
+
+Result: returns the lifestyle creatives ("Aspirational lifestyle imagery; the highest-performing
+angle on social for younger segments") — the winning social+lifestyle combo — see search_result.json.

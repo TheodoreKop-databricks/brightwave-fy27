@@ -1,0 +1,28 @@
+HERO QUESTION
+=============
+"Which campaigns are winning and why, and how do I replicate the winner's creative across CMP-0000214?"
+
+DECISION CHAIN (resolves across submission2 evidence #1 / #2 / #3):
+
+  CMP-0000214  (underperformer, ROAS ~1.1, recoverable spend $187,076.60)          [view_result.json / #3]
+    -> matching winner:  CMP-0000634  (ROAS ~4.96, social + testimonial creative)  [view_result.json / #3]
+    -> model recommended_action:  replicate_winner  (predicted ROAS lift +2.2343)  [view_result.json / synced.action_recommendations]
+    -> assistant investigate + rank + draft:                                        [assist_log.jsonl / #4 ; drafted_sample.md / #5]
+    -> APPROVED ACTION:  campaign_actions_app.id = f749881e-a0fd-44ad-8b45-63a825c96b46   [writeback_table.json / #1]
+         action_type = replicate_winner   target = CMP-0000634
+         status = approved   approved_by = theodore.kop@databricks.com
+         created_at 2026-08-28T19:21:56.057Z  <  decided_at 2026-08-28T19:21:56.064Z
+    -> RECORDED DECISION:  workflow_events.id = 8856dfc4-cf6b-454e-b9ba-38c86d33a1c8   [state_table.json / #2]
+         actor = theodore.kop@databricks.com   action_id = f749881e-a0fd-44ad-8b45-63a825c96b46 (links to the action above)
+         occurred_at 2026-08-28T19:21:56.056Z
+
+TRIGGER that surfaced the work (system-initiated, not a person opening the view)   [state_table.json / #2]:
+  scoring_trigger  workflow_events.id = daa45a32-3c9a-4631-9dec-5f184e0c44c8   actor = system:job
+  payload = {"winners": 60, "campaigns_scored": 2000, "underperformers_flagged": 89}
+  occurred_at 2026-08-28T17:55:08.666Z   (fired by the table-update Job on gold_campaign_position / gold_action_recommendations)
+
+SECOND ACTION IN THE SAME SESSION (portfolio mix — replicate vs reallocate)         [writeback_table.json / #1 ; state_table.json / #2]:
+  CMP-0001141 -> reallocate_budget -> campaign_actions_app.id = d2b99d39-a798-474c-a050-8630ca80b705
+                 -> workflow_events decision id = c3c44af8-dc9f-4dda-8bfa-9a89c2c8f473 (theodore.kop@databricks.com)
+
+CLOSED LOOP: after approval the desk re-reads and CMP-0000214 flips to "action taken"; the open-underperformer KPI ticked 89 -> 88.

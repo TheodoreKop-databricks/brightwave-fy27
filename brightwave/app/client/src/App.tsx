@@ -19,7 +19,7 @@ import { AppHeader } from '@/shell/AppHeader';
 import { HomeView } from '@/home/HomeView';
 import { ChatView } from '@/chat/ChatView';
 import { ChatDock } from '@/chat/ChatDock';
-import { OperationsView } from '@/operations/OperationsView';
+import { CampaignDeskView } from '@/campaign-desk/CampaignDeskView';
 import { AnalyticsView } from '@/analytics/AnalyticsView';
 import { DashboardView } from '@/dashboard/DashboardView';
 import { PlatformView } from '@/platform/PlatformView';
@@ -69,7 +69,7 @@ const router = createBrowserRouter(
       children: [
         { path: '/', element: <HomeView /> },
         { path: '/c/:id', element: <ChatView /> },
-        { path: '/operations', element: <OperationsView /> },
+        { path: '/campaign-desk', element: <CampaignDeskView /> },
         { path: '/analytics', element: <AnalyticsView /> },
         { path: '/dashboard', element: <DashboardView /> },
         { path: '/platform', element: <PlatformView /> },

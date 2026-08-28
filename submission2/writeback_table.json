@@ -1,0 +1,44 @@
+[
+    {
+        "id": "f749881e-a0fd-44ad-8b45-63a825c96b46",
+        "campaign_id": "CMP-0000214",
+        "action_type": "replicate_winner",
+        "target_campaign_id": "CMP-0000634",
+        "status": "approved",
+        "approved_by": "theodore.kop@databricks.com",
+        "predicted_roas_lift": 2.2343,
+        "drafted_brief_preview": "Replicate the winning play for CMP-0000214 by shifting toward lifestyle-led video creative tailored to younger apparel audiences. Use the winning angle seen in creatives like lifestyle video 242, lifestyle video 223, and lifestyle video 51: aspirational, social-native imagery with fast pacing, product-in-context styling, and a clear visual hook in the first seconds. Keep the message on-brand for B",
+        "audit_trail": [
+            {
+                "at": "2026-08-28T19:21:56.057Z",
+                "by": "theodore.kop@databricks.com",
+                "tool": "execute_campaign_action",
+                "notes": "Campaign action recorded",
+                "action": "approved"
+            }
+        ],
+        "created_at": "2026-08-28T19:21:56.057+00:00",
+        "decided_at": "2026-08-28T19:21:56.064+00:00"
+    },
+    {
+        "id": "d2b99d39-a798-474c-a050-8630ca80b705",
+        "campaign_id": "CMP-0001141",
+        "action_type": "reallocate_budget",
+        "target_campaign_id": "CMP-0000634",
+        "status": "approved",
+        "approved_by": "theodore.kop@databricks.com",
+        "predicted_roas_lift": 0.8899,
+        "drafted_brief_preview": "Reallocate budget away from the weakest placements, audiences, and creatives in CMP-0001141 and shift spend into CMP-0000634, the higher-efficiency campaign already demonstrating stronger conversion economics. Prioritize inventory with the best ROAS and stable spend absorption, and reduce exposure to low-return pockets dragging blended performance. Keep messaging and brand presentation consistent ",
+        "audit_trail": [
+            {
+                "at": "2026-08-28T19:27:04.173Z",
+                "by": "theodore.kop@databricks.com",
+                "tool": "execute_campaign_action",
+                "notes": "Campaign action recorded",
+                "action": "approved"
+            }
+        ],
+        "created_at": "2026-08-28T19:27:04.173+00:00",
+        "decided_at": "2026-08-28T19:27:04.179+00:00"
+    }
+]
