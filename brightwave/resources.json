@@ -21,5 +21,12 @@
       "genie-code"
     ]
   },
-  "created_resources": {}
+  "created_resources": {
+    "pipeline_id": "0520ce83-166c-4671-bf3a-8ea64205bc1e",
+    "metric_view_name": "brightwave_techsummit27_catalog.brightwave.mv_campaign_perf",
+    "genie_space_id": "01f1a26fadc51614a203f762ffb368d4",
+    "dashboard_id": "01f1a26fed4516b98df68d6ff9e84d65",
+    "ml_model_name": "brightwave_techsummit27_catalog.brightwave.roas_recommender",
+    "mlflow_experiment_path": "/Users/theodore.kop@databricks.com/roas_recommender"
+  }
 }

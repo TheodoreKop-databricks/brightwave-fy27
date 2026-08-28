@@ -1,0 +1,25 @@
+-- mv_campaign_perf: The ONE governed definition of Brightwave campaign-performance metrics
+-- Run this DDL manually (not part of the SDP pipeline) to create the metric view.
+-- Consumers: dashboard KPI tiles, Genie headline answers, app KPI cards.
+-- Materialization: aggregated on (channel, category, perf_band, target_segment), refresh every 6h.
+--
+-- DDL:
+--   CREATE OR REPLACE VIEW brightwave_techsummit27_catalog.brightwave.mv_campaign_perf
+--   WITH METRICS LANGUAGE YAML AS $$ ... $$
+--
+-- Dimensions: channel, category, perf_band, target_segment, campaign_id
+-- Measures:
+--   recoverable_spend  = SUM(recoverable_spend_usd)
+--   total_spend         = SUM(spend_to_date_usd)
+--   attributed_revenue  = SUM(attributed_revenue_usd)
+--   avg_roas            = AVG(roas)
+--   campaign_count      = COUNT(1)
+--   winner_count        = SUM(CASE WHEN perf_band='winner' THEN 1 ELSE 0 END)
+--   underperformer_count= SUM(CASE WHEN perf_band='underperformer' THEN 1 ELSE 0 END)
+--
+-- Validation:
+--   MEASURE(recoverable_spend) on underperformers ~ $16M
+--   MEASURE(underperformer_count) ~ 89
+--   MEASURE(winner_count) ~ 60
+--   MEASURE(avg_roas) WHERE perf_band='winner' ~ 4.17
+--   MEASURE(avg_roas) WHERE perf_band='underperformer' ~ 1.14

@@ -23,25 +23,28 @@ workspace:
 variables:
   catalog:
     description: Unity Catalog for the workshop data (must already exist / you can create it).
-    default: dbdemos_templates
+    default: brightwave_techsummit27_catalog
   schema:
     description: Schema for the demo tables + the raw_data volume (created by this bundle).
     default: brightwave
 
 resources:
-  schemas:
-    demo_schema:
-      catalog_name: ${var.catalog}
-      name: ${var.schema}
-      comment: "Workshop — Brightwave campaign-replication: synthetic marketing campaign data."
-
-  volumes:
-    raw_data:
-      catalog_name: ${var.catalog}
-      schema_name: ${resources.schemas.demo_schema.name}
-      name: raw_data
-      volume_type: MANAGED
-      comment: "Raw parquet landing zone — generate_data.py writes here; the SDP silver you build reads it via read_files()."
+  pipelines:
+    brightwave_campaign_360:
+      name: "brightwave_campaign_360"
+      catalog: ${var.catalog}
+      target: ${var.schema}
+      libraries:
+        - glob:
+            include: ./transformation/**
+      serverless: true
+      continuous: false
+      development: false
+      photon: true
+      channel: current
+      configuration:
+        catalog: ${var.catalog}
+        schema: ${var.schema}
 
   jobs:
     brightwave_setup:
@@ -53,7 +56,7 @@ resources:
             notebook_path: ./data_generation/generate_data.py
             base_parameters:
               catalog: ${var.catalog}
-              schema: ${resources.schemas.demo_schema.name}
+              schema: ${var.schema}
           environment_key: sdk_default
       environments:
         - environment_key: sdk_default
@@ -66,7 +69,6 @@ resources:
 
 targets:
   dev:
-    mode: development
     default: true
   prod:
     mode: production
