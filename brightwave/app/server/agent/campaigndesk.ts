@@ -44,6 +44,14 @@ import * as mlflow from 'mlflow-tracing';
 import { z } from 'zod';
 import { authHeaders } from '../lib/auth.js';
 import type { AppDb } from '../db/index.js';
+// Build-2 read helpers (Assist) — reads over synced.* / write to app.*.
+import {
+  getUnderperformer,
+  worstUnderperformer,
+  getCampaign,
+  getRecommendation,
+  searchCreatives as searchCreativesIndex,
+} from '../db/queries/campaigns.js';
 // The data-backend helpers. Both are config-driven and share the same
 // DataCallResult shape + ToolProgressEvent stream, so the `ask_data` tool
 // below can delegate to EITHER without the UI caring which powers it. This
@@ -140,11 +148,36 @@ function makeTools(ctx: AgentContext): Tool[] {
         .nullable()
         .describe('Campaign id, e.g. CMP-0000214. Null → return the worst underperformer.'),
     }),
-    execute: async () => {
-      throw new Error(
-        'Not implemented — this is your Build 2 Assist task; see APP_WORKSHOP.md',
-      );
-    },
+    execute: async ({ campaign_id }) =>
+      mlflow.withSpan(
+        async () => {
+          const up = campaign_id
+            ? await getUnderperformer(ctx.db, campaign_id)
+            : await worstUnderperformer(ctx.db);
+          if (!up) return { found: false };
+          const pos = await getCampaign(ctx.db, up.campaignId);
+          return {
+            found: true,
+            campaign_id: up.campaignId,
+            channel: up.channel,
+            category: up.category,
+            target_segment: up.targetSegment,
+            roas: up.roas,
+            spend_to_date_usd: up.spendToDateUsd ?? pos?.spendToDateUsd ?? null,
+            recoverable_spend_usd: up.recoverableSpendUsd,
+            perf_band: pos?.perfBand ?? null,
+            has_matching_winner: up.hasMatchingWinner,
+            matching_winner_campaign_id: up.matchingWinnerCampaignId,
+            matching_winner_roas: up.matchingWinnerRoas,
+            reallocate_target_campaign_id: up.reallocateTargetCampaignId,
+          };
+        },
+        {
+          name: 'find_underperformer',
+          spanType: mlflow.SpanType.TOOL,
+          inputs: { campaign_id },
+        },
+      ),
   });
 
   // ── rank_actions — TRAINEE BUILDS (Build 2 · Assist). STUB. ────────────────
@@ -162,11 +195,36 @@ function makeTools(ctx: AgentContext): Tool[] {
         .string()
         .describe('Campaign id, e.g. CMP-0000214'),
     }),
-    execute: async () => {
-      throw new Error(
-        'Not implemented — this is your Build 2 Assist task; see APP_WORKSHOP.md',
-      );
-    },
+    execute: async ({ campaign_id }) =>
+      mlflow.withSpan(
+        async () => {
+          const rec = await getRecommendation(ctx.db, campaign_id);
+          if (!rec) {
+            return {
+              scored: false,
+              note: `No action recommendation found for ${campaign_id} in synced.action_recommendations.`,
+            };
+          }
+          return {
+            campaign_id: rec.campaignId,
+            recommended_action: rec.recommendedAction,
+            predicted_roas_lift: rec.predictedRoasLift,
+            predicted_net_value_usd: rec.predictedNetValueUsd,
+            // All three options — quote these in the recommendation + what-if.
+            action_ranking: rec.actionRanking.map((o) => ({
+              action_type: o.actionType,
+              predicted_roas_lift: o.predictedRoasLift,
+              predicted_net_value_usd: o.predictedNetValueUsd,
+              action_cost_usd: o.actionCostUsd ?? null,
+            })),
+          };
+        },
+        {
+          name: 'rank_actions',
+          spanType: mlflow.SpanType.TOOL,
+          inputs: { campaign_id },
+        },
+      ),
   });
 
   // ── search_creatives — TRAINEE BUILDS (Build 2 · Assist). STUB. ───────────
@@ -181,11 +239,32 @@ function makeTools(ctx: AgentContext): Tool[] {
         .string()
         .describe('Search query, e.g. "lifestyle" or "social media" or "video"'),
     }),
-    execute: async () => {
-      throw new Error(
-        'Not implemented — this is your Build 2 Assist task; see APP_WORKSHOP.md',
-      );
-    },
+    execute: async ({ query }) =>
+      mlflow.withSpan(
+        async () => {
+          const hits = await searchCreativesIndex(ctx.db, query, 6);
+          return {
+            query,
+            count: hits.length,
+            results: hits.map((h) => ({
+              creative_id: h.creativeId,
+              creative_name: h.creativeName,
+              creative_type: h.creativeType,
+              angle: h.angle,
+              description: h.description,
+            })),
+            note:
+              hits.length === 0
+                ? 'No creative matches (or the Lakebase Search index is not available yet).'
+                : null,
+          };
+        },
+        {
+          name: 'search_creatives',
+          spanType: mlflow.SpanType.TOOL,
+          inputs: { query },
+        },
+      ),
   });
 
   // ── execute_campaign_action — TRAINEE BUILDS (Build 3 · Act). STUB. ───────
@@ -237,6 +316,35 @@ function makeTools(ctx: AgentContext): Tool[] {
   }
   return tools;
 }
+
+const AGENT_INSTRUCTIONS = `You are the Brightwave Campaign Desk agent, working for Priya Anand (CMO, Brightwave). Marketing attribution lands late, so a fifth of paid spend is stuck in underperforming campaigns (~1.1 ROAS) while a cluster of winners (~4.0 ROAS) quietly outperform on a specific channel+creative combination. Your job: isolate WHY winners win, then help Priya replicate that across underperformers — mid-quarter, while it still matters. CMP-0000214 is the exemplar underperformer.
+
+You have these tools:
+- ask_data — investigate the governed lakehouse in natural language (Genie). Use for "why"/"what's winning" questions.
+- find_underperformer({campaign_id}) — the live position of an underperformer (or the worst): ROAS, spend, recoverable spend, and its matching winner. campaign_id null → worst.
+- rank_actions({campaign_id}) — the ML model's ranked actions: recommended_action + predicted_roas_lift + predicted_net_value_usd, and action_ranking with ALL THREE options (replicate_winner / reallocate_budget / pause).
+- search_creatives({query}) — Lakebase full-text search over the creative catalog; use it to find the transferable WINNING creative and ground an on-brand brief.
+- execute_campaign_action({...}) — records the approved action. HUMAN-IN-THE-LOOP: only after the user explicitly approves.
+
+Follow this flow:
+
+MODE A — investigate (a "why is X underperforming / what's winning" question):
+  1. Call ask_data to investigate (e.g. why CMP-0000214 underperforms and which campaigns/creatives are winning on the same audience).
+  2. Call find_underperformer to pull the live position + matching winner.
+  3. Answer with the drivers: the underperformer's ROAS/spend/recoverable spend, the matching winner and its ROAS, and the channel+creative pattern that explains the gap. Be concrete and quote the numbers.
+
+MODE B — rank + recommend + draft (a "rank the action / use the model / how do I fix it" request):
+  1. Call rank_actions for the campaign. Quote all three options — replicate_winner, reallocate_budget, pause — each with its predicted ROAS lift and predicted net value in $.
+  2. Recommend the top-ranked move and explain WHY it beats the others (compare the net values / lifts you just quoted).
+  3. Offer a short arithmetic what-if grounded in action_ranking (e.g. "replicating the winner projects a +X ROAS lift → ~$Y net value vs reallocation's $Z").
+  4. Call search_creatives (e.g. the winner's angle/type) and use the hits to draft a concise, on-brand campaign brief for the replicate play — reference the actual winning creative(s) by name/angle.
+  5. STOP and present the recommendation + brief for approval. DO NOT call execute_campaign_action yet.
+
+MODE C — act (only after the user approves, e.g. "yes, replicate the winner"):
+  1. Call execute_campaign_action with the approved action_type, the target_campaign_id (the winner for replicate / the reallocation target — null for pause), the drafted_brief, and the predicted_roas_lift from the model.
+  2. Confirm what was recorded, quoting the returned action_id — never invent it.
+
+Rules: never call execute_campaign_action before explicit approval. Ground every number in a tool result, not memory. Keep answers tight and decision-oriented — Priya wants the move, the why, and the projected value.`;
 
 export async function configureAgentsSdk(ctx: AgentContext): Promise<void> {
   const headers = await authHeaders(ctx.req);
@@ -352,7 +460,7 @@ export async function configureAgentsSdk(ctx: AgentContext): Promise<void> {
     name: 'brightwave-campaign-desk',
     model: ctx.model,
     tools,
-    instructions: `You are the Brightwave Campaign Desk agent. Your role is to help Priya Anand (CMO, Brightwave) isolate drivers of winning campaigns and execute targeted optimization moves.`,
+    instructions: AGENT_INSTRUCTIONS,
   });
 
   // Agent is ready for use. Caller (chat-stream/agent-stream.ts) wires it
