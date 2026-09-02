@@ -1,0 +1,92 @@
+{
+  "evidence": "Build 3 execution evidence \u2014 the inference-log schema and BOTH auto-capture inference tables were created by committed code (serving_endpoint_spec.json / create_serving_endpoints.sh) and are ACTIVELY CAPTURING. SHOW TABLES proves they exist; COUNT(*) proves they hold rows; sample rows show real routed app calls (gpt-5.4).",
+  "schema": "brightwave_techsummit27_catalog.inference_logs",
+  "captured_at_utc": "2026-08-29",
+  "queries": [
+    {
+      "name": "show_tables_in_inference_logs",
+      "sql": "SHOW TABLES IN brightwave_techsummit27_catalog.inference_logs",
+      "row_count": 3,
+      "rows": [
+        {
+          "database": "inference_logs",
+          "isTemporary": "false",
+          "tableName": "campaign_desk_llm_payload"
+        },
+        {
+          "database": "inference_logs",
+          "isTemporary": "false",
+          "tableName": "codex_agent_payload"
+        },
+        {
+          "database": "inference_logs",
+          "isTemporary": "false",
+          "tableName": "coding_agent_payload"
+        }
+      ]
+    },
+    {
+      "name": "app_table_row_count",
+      "sql": "SELECT COUNT(*) AS rows FROM brightwave_techsummit27_catalog.inference_logs.campaign_desk_llm_payload",
+      "row_count": 1,
+      "rows": [
+        {
+          "rows": "16"
+        }
+      ]
+    },
+    {
+      "name": "codex_table_row_count",
+      "sql": "SELECT COUNT(*) AS rows FROM brightwave_techsummit27_catalog.inference_logs.codex_agent_payload",
+      "row_count": 1,
+      "rows": [
+        {
+          "rows": "9"
+        }
+      ]
+    },
+    {
+      "name": "app_table_sample_rows",
+      "sql": "SELECT event_time, status_code, latency_ms, destination_model, api_type, SUBSTRING(request,1,220) AS request_head, SUBSTRING(response,1,160) AS response_head FROM brightwave_techsummit27_catalog.inference_logs.campaign_desk_llm_payload WHERE status_code=200 ORDER BY event_time LIMIT 4",
+      "row_count": 4,
+      "rows": [
+        {
+          "api_type": "mlflow/v1/chat/completions",
+          "destination_model": "campaign_desk_gpt54",
+          "event_time": "2026-08-28T23:04:09.724Z",
+          "latency_ms": "2644",
+          "request_head": "{\"max_tokens\":80,\"messages\":[{\"content\":\"In one sentence: which Brightwave campaign is the hero underperformer and what action is recommended?\",\"role\":\"user\"}],\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign",
+          "response_head": "{\n  \"id\": \"chatcmpl-EHzuF9Zbw32NyVcsR2TeQXmF1D9FJ\",\n  \"object\": \"chat.completion\",\n  \"created\": 1787958251,\n  \"model\": \"gpt-5.4-2026-03-05\",\n  \"choices\": [\n    ",
+          "status_code": "200"
+        },
+        {
+          "api_type": "mlflow/v1/chat/completions",
+          "destination_model": "campaign_desk_gpt54",
+          "event_time": "2026-08-28T23:07:20.434Z",
+          "latency_ms": "2126",
+          "request_head": "{\"max_tokens\":60,\"messages\":[{\"content\":\"Summarize why social+testimonial creative beats display for gen_z apparel, in one line.\",\"role\":\"user\"}],\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+          "response_head": "{\n  \"id\": \"chatcmpl-EHzxJ0MQ05ioImeFoD78hBd3aKHhS\",\n  \"object\": \"chat.completion\",\n  \"created\": 1787958441,\n  \"model\": \"gpt-5.4-2026-03-05\",\n  \"choices\": [\n    ",
+          "status_code": "200"
+        },
+        {
+          "api_type": "mlflow/v1/chat/completions",
+          "destination_model": "campaign_desk_gpt54",
+          "event_time": "2026-08-28T23:07:24.001Z",
+          "latency_ms": "1933",
+          "request_head": "{\"max_tokens\":60,\"messages\":[{\"content\":\"What is a good next action for an underperforming campaign with a matching winner?\",\"role\":\"user\"}],\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+          "response_head": "{\n  \"id\": \"chatcmpl-EHzxMrejB47IZ3rhz32WaLhkb2nSw\",\n  \"object\": \"chat.completion\",\n  \"created\": 1787958444,\n  \"model\": \"gpt-5.4-2026-03-05\",\n  \"choices\": [\n    ",
+          "status_code": "200"
+        },
+        {
+          "api_type": "mlflow/v1/chat/completions",
+          "destination_model": "campaign_desk_gpt54",
+          "event_time": "2026-08-28T23:07:27.502Z",
+          "latency_ms": "1734",
+          "request_head": "{\"max_tokens\":60,\"messages\":[{\"content\":\"Give one KPI a CMO should watch for return on ad spend.\",\"role\":\"user\"}],\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+          "response_head": "{\n  \"id\": \"chatcmpl-EHzxQoL2X7hNREdJhLfYljN1rQtwq\",\n  \"object\": \"chat.completion\",\n  \"created\": 1787958448,\n  \"model\": \"gpt-5.4-2026-03-05\",\n  \"choices\": [\n    ",
+          "status_code": "200"
+        }
+      ]
+    }
+  ]
+}

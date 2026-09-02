@@ -1,4 +1,7 @@
-*   642786a (HEAD -> main) Merge build1-lakebase into main: Build 1 Lakebase submission evidence
+* 2e58205 (HEAD -> main) Evidence: operational-schema execution transcript (proves DDL ran live)
+* 4c6bf91 Evidence: canonical dev-branch-off-main header in branch.txt
+* 6195b89 Evidence: refresh git_history.txt after build1-lakebase merge
+*   642786a Merge build1-lakebase into main: Build 1 Lakebase submission evidence
 |\  
 | * 63f5ef9 (build1-lakebase) Build 1 (Lakebase): submission evidence + branch-creation as code
 |/  

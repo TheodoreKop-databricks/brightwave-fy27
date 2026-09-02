@@ -1,0 +1,483 @@
+{
+  "dashboard_id": "01f1a343a6e713799239ee9edcd04886",
+  "display_name": "Brightwave Unity AI Gateway - Exec Usage",
+  "path": "/Users/theodore.kop@databricks.com/Brightwave Unity AI Gateway - Exec Usage.lvdash.json",
+  "source_table": "system.ai_gateway.usage",
+  "workspace_id": "7474647541759877",
+  "note": "Exec usage dashboard over Unity AI Gateway: app model service, coding agent (shared + own bonus endpoint), Slack MCP, guardrail judge; plus the $0.05 Block-usage budget.",
+  "serialized_dashboard": {
+    "datasets": [
+      {
+        "name": "ds_gw",
+        "displayName": "Unity AI Gateway usage",
+        "queryLines": [
+          "SELECT DATE_TRUNC('DAY', event_time) AS day,\n",
+          "  CASE WHEN service_name='brightwave_techsummit27_catalog.brightwave.campaign_desk_llm' THEN 'App - Campaign Desk'\n",
+          "       WHEN service_name='brightwave_techsummit27_catalog.brightwave.campaign_desk_codex' THEN 'Coding Agent - own endpoint (bonus)'\n",
+          "       WHEN service_name='system.ai.gpt-5-6-luna' THEN 'Coding Agent - Codex (shared)'\n",
+          "       WHEN service_name='system.ai.slack' THEN 'MCP - Slack'\n",
+          "       WHEN service_name='system.ai.gpt-5-2' THEN 'Guardrail Judge'\n",
+          "       ELSE service_name END AS surface,\n",
+          "  service_name, service_type,\n",
+          "  COUNT(*) AS calls,\n",
+          "  COALESCE(SUM(total_tokens),0) AS tokens\n",
+          "FROM usage\n",
+          "WHERE workspace_id='7474647541759877' AND event_time > now() - INTERVAL 14 DAYS\n",
+          "GROUP BY 1,2,3,4"
+        ],
+        "columns": [
+          {
+            "displayName": "Total Calls",
+            "description": "Gateway calls",
+            "expression": "SUM(`calls`)"
+          },
+          {
+            "displayName": "Total Tokens",
+            "description": "Total tokens",
+            "expression": "SUM(`tokens`)"
+          },
+          {
+            "displayName": "Governed Surfaces",
+            "description": "Distinct governed surfaces",
+            "expression": "COUNT(DISTINCT `surface`)"
+          },
+          {
+            "displayName": "Coding Agent Tokens",
+            "description": "Tokens from the coding agent (shared + own endpoint)",
+            "expression": "SUM(CASE WHEN `surface` LIKE 'Coding Agent%' THEN `tokens` ELSE 0 END)"
+          }
+        ]
+      }
+    ],
+    "pages": [
+      {
+        "name": "overview",
+        "displayName": "Gateway Governance",
+        "layout": [
+          {
+            "widget": {
+              "name": "header",
+              "multilineTextboxSpec": {
+                "lines": [
+                  "# Brightwave - Unity AI Gateway - Executive Usage Report\n",
+                  "\n",
+                  "Every AI surface at Brightwave is governed through the **Unity AI Gateway**: the **Campaign Desk app** (model service `campaign_desk_llm`), the **coding agent** (Codex via ucode), and the **Slack MCP** (`system.ai.slack`). All calls are traced in `system.ai_gateway.usage` and capped by a **$0.05 Unity AI Gateway budget (Block usage)**. The app's model service also enforces the `block_all_lakebase_data` guardrail (its LLM-judge calls appear as *Guardrail Judge*)."
+                ]
+              }
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 3
+            }
+          },
+          {
+            "widget": {
+              "name": "kpi-calls",
+              "queries": [
+                {
+                  "name": "main_query",
+                  "query": {
+                    "datasetName": "ds_gw",
+                    "fields": [
+                      {
+                        "name": "measure(Total Calls)",
+                        "expression": "MEASURE(`Total Calls`)"
+                      }
+                    ],
+                    "disaggregated": false
+                  }
+                }
+              ],
+              "spec": {
+                "version": 2,
+                "widgetType": "counter",
+                "encodings": {
+                  "value": {
+                    "fieldName": "measure(Total Calls)",
+                    "displayName": "Total gateway calls"
+                  }
+                },
+                "frame": {
+                  "title": "Total gateway calls",
+                  "showTitle": true
+                }
+              }
+            },
+            "position": {
+              "x": 0,
+              "y": 3,
+              "width": 3,
+              "height": 3
+            }
+          },
+          {
+            "widget": {
+              "name": "kpi-tokens",
+              "queries": [
+                {
+                  "name": "main_query",
+                  "query": {
+                    "datasetName": "ds_gw",
+                    "fields": [
+                      {
+                        "name": "measure(Total Tokens)",
+                        "expression": "MEASURE(`Total Tokens`)"
+                      }
+                    ],
+                    "disaggregated": false
+                  }
+                }
+              ],
+              "spec": {
+                "version": 2,
+                "widgetType": "counter",
+                "encodings": {
+                  "value": {
+                    "fieldName": "measure(Total Tokens)",
+                    "displayName": "Total tokens",
+                    "format": {
+                      "type": "number-compact",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 1
+                      }
+                    }
+                  }
+                },
+                "frame": {
+                  "title": "Total tokens routed",
+                  "showTitle": true
+                }
+              }
+            },
+            "position": {
+              "x": 3,
+              "y": 3,
+              "width": 3,
+              "height": 3
+            }
+          },
+          {
+            "widget": {
+              "name": "kpi-agent-tokens",
+              "queries": [
+                {
+                  "name": "main_query",
+                  "query": {
+                    "datasetName": "ds_gw",
+                    "fields": [
+                      {
+                        "name": "measure(Coding Agent Tokens)",
+                        "expression": "MEASURE(`Coding Agent Tokens`)"
+                      }
+                    ],
+                    "disaggregated": false
+                  }
+                }
+              ],
+              "spec": {
+                "version": 2,
+                "widgetType": "counter",
+                "encodings": {
+                  "value": {
+                    "fieldName": "measure(Coding Agent Tokens)",
+                    "displayName": "Coding-agent tokens",
+                    "format": {
+                      "type": "number-compact",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 1
+                      }
+                    }
+                  }
+                },
+                "frame": {
+                  "title": "Coding-agent tokens",
+                  "showTitle": true
+                }
+              }
+            },
+            "position": {
+              "x": 6,
+              "y": 3,
+              "width": 3,
+              "height": 3
+            }
+          },
+          {
+            "widget": {
+              "name": "kpi-surfaces",
+              "queries": [
+                {
+                  "name": "main_query",
+                  "query": {
+                    "datasetName": "ds_gw",
+                    "fields": [
+                      {
+                        "name": "measure(Governed Surfaces)",
+                        "expression": "MEASURE(`Governed Surfaces`)"
+                      }
+                    ],
+                    "disaggregated": false
+                  }
+                }
+              ],
+              "spec": {
+                "version": 2,
+                "widgetType": "counter",
+                "encodings": {
+                  "value": {
+                    "fieldName": "measure(Governed Surfaces)",
+                    "displayName": "Governed surfaces"
+                  }
+                },
+                "frame": {
+                  "title": "Governed surfaces",
+                  "showTitle": true
+                }
+              }
+            },
+            "position": {
+              "x": 9,
+              "y": 3,
+              "width": 3,
+              "height": 3
+            }
+          },
+          {
+            "widget": {
+              "name": "calls-by-surface",
+              "queries": [
+                {
+                  "name": "main_query",
+                  "query": {
+                    "datasetName": "ds_gw",
+                    "fields": [
+                      {
+                        "name": "surface",
+                        "expression": "`surface`"
+                      },
+                      {
+                        "name": "measure(Total Calls)",
+                        "expression": "MEASURE(`Total Calls`)"
+                      }
+                    ],
+                    "disaggregated": false
+                  }
+                }
+              ],
+              "spec": {
+                "version": 3,
+                "widgetType": "bar",
+                "encodings": {
+                  "x": {
+                    "fieldName": "surface",
+                    "scale": {
+                      "type": "categorical"
+                    },
+                    "displayName": "Surface"
+                  },
+                  "y": {
+                    "fieldName": "measure(Total Calls)",
+                    "scale": {
+                      "type": "quantitative"
+                    },
+                    "displayName": "Calls"
+                  },
+                  "color": {
+                    "fieldName": "surface",
+                    "scale": {
+                      "type": "categorical"
+                    }
+                  }
+                },
+                "frame": {
+                  "showTitle": true,
+                  "title": "Gateway calls by surface (app / coding agent / MCP)"
+                }
+              }
+            },
+            "position": {
+              "x": 0,
+              "y": 6,
+              "width": 6,
+              "height": 6
+            }
+          },
+          {
+            "widget": {
+              "name": "tokens-by-surface",
+              "queries": [
+                {
+                  "name": "main_query",
+                  "query": {
+                    "datasetName": "ds_gw",
+                    "fields": [
+                      {
+                        "name": "surface",
+                        "expression": "`surface`"
+                      },
+                      {
+                        "name": "measure(Total Tokens)",
+                        "expression": "MEASURE(`Total Tokens`)"
+                      }
+                    ],
+                    "disaggregated": false
+                  }
+                }
+              ],
+              "spec": {
+                "version": 3,
+                "widgetType": "bar",
+                "encodings": {
+                  "x": {
+                    "fieldName": "surface",
+                    "scale": {
+                      "type": "categorical"
+                    },
+                    "displayName": "Surface"
+                  },
+                  "y": {
+                    "fieldName": "measure(Total Tokens)",
+                    "scale": {
+                      "type": "quantitative"
+                    },
+                    "displayName": "Tokens"
+                  },
+                  "color": {
+                    "fieldName": "surface",
+                    "scale": {
+                      "type": "categorical"
+                    }
+                  }
+                },
+                "frame": {
+                  "showTitle": true,
+                  "title": "Tokens routed by surface"
+                }
+              }
+            },
+            "position": {
+              "x": 6,
+              "y": 6,
+              "width": 6,
+              "height": 6
+            }
+          },
+          {
+            "widget": {
+              "name": "detail",
+              "queries": [
+                {
+                  "name": "main_query",
+                  "query": {
+                    "datasetName": "ds_gw",
+                    "fields": [
+                      {
+                        "name": "service_name",
+                        "expression": "`service_name`"
+                      },
+                      {
+                        "name": "service_type",
+                        "expression": "`service_type`"
+                      },
+                      {
+                        "name": "surface",
+                        "expression": "`surface`"
+                      },
+                      {
+                        "name": "sum(calls)",
+                        "expression": "SUM(`calls`)"
+                      },
+                      {
+                        "name": "sum(tokens)",
+                        "expression": "SUM(`tokens`)"
+                      }
+                    ],
+                    "disaggregated": false
+                  }
+                }
+              ],
+              "spec": {
+                "version": 2,
+                "widgetType": "table",
+                "encodings": {
+                  "columns": [
+                    {
+                      "fieldName": "surface",
+                      "displayName": "Surface"
+                    },
+                    {
+                      "fieldName": "service_name",
+                      "displayName": "Service (gateway)"
+                    },
+                    {
+                      "fieldName": "service_type",
+                      "displayName": "Type"
+                    },
+                    {
+                      "fieldName": "sum(calls)",
+                      "displayName": "Calls"
+                    },
+                    {
+                      "fieldName": "sum(tokens)",
+                      "displayName": "Tokens"
+                    }
+                  ]
+                },
+                "frame": {
+                  "showTitle": true,
+                  "title": "Per-service usage detail (app agent, coding agent, MCP)"
+                }
+              }
+            },
+            "position": {
+              "x": 0,
+              "y": 12,
+              "width": 12,
+              "height": 6
+            }
+          }
+        ],
+        "pageType": "PAGE_TYPE_CANVAS",
+        "layoutVersion": "GRID_V1"
+      }
+    ],
+    "uiSettings": {
+      "theme": {
+        "canvasBackgroundColor": {
+          "light": "#FCFCFC",
+          "dark": "#1F272D"
+        },
+        "widgetBackgroundColor": {
+          "light": "#FFFFFF",
+          "dark": "#11171C"
+        },
+        "widgetBorderColor": {
+          "light": "#FFFFFF",
+          "dark": "#11171C"
+        },
+        "fontColor": {
+          "light": "#11171C",
+          "dark": "#E8ECF0"
+        },
+        "selectionColor": {
+          "light": "#2272B4",
+          "dark": "#8ACAFF"
+        },
+        "visualizationColors": [
+          "#0072B2",
+          "#E69F00",
+          "#009E73",
+          "#CC79A7",
+          "#D55E00",
+          "#4E5185",
+          "#99DDB4"
+        ],
+        "widgetHeaderAlignment": "LEFT"
+      }
+    }
+  }
+}

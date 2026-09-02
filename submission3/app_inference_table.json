@@ -1,0 +1,144 @@
+{
+  "evidence": "Build 3 \u2014 the app's LLM routed through the Unity AI Gateway model service (campaign_desk_llm): routed calls (inference table), the guardrail block, and the budget block.",
+  "model_service": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+  "inference_table": "brightwave_techsummit27_catalog.inference_logs.campaign_desk_llm_payload",
+  "gateway_endpoints": [
+    "/ai-gateway/openai/v1/responses (app agent)",
+    "/ai-gateway/mlflow/v1/chat/completions"
+  ],
+  "1_routed_calls": {
+    "note": "Calls to the app's governed model service, logged to the inference table (status 200, routed to gpt-5-4). The deployed Campaign Desk app now sends its agent's model calls here (agentModel=campaign_desk_llm, baseURL=/ai-gateway/openai/v1).",
+    "rows": [
+      {
+        "event_time": "2026-08-28 23:04:09.724",
+        "requester": "theodore.kop@databricks.com",
+        "status_code": 200,
+        "destination_model": "campaign_desk_gpt54",
+        "api_type": "mlflow/v1/chat/completions",
+        "request": "{\"max_tokens\":80,\"messages\":[{\"content\":\"In one sentence: which Brightwave campaign is the hero underperformer and what action is recommended?\",\"role\":\"user\"}],\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign",
+        "response_snip": "{\n  \"id\": \"chatcmpl-EHzuF9Zbw32NyVcsR2TeQXmF1D9FJ\",\n  \"object\": \"chat.completion\",\n  \"created\": 1787958251,\n  \"model\": \"gpt-5.4-2026-03-05\",\n  \"choices\": [\n    {\n      \"index\": 0,\n"
+      },
+      {
+        "event_time": "2026-08-28 23:07:20.434",
+        "requester": "theodore.kop@databricks.com",
+        "status_code": 200,
+        "destination_model": "campaign_desk_gpt54",
+        "api_type": "mlflow/v1/chat/completions",
+        "request": "{\"max_tokens\":60,\"messages\":[{\"content\":\"Summarize why social+testimonial creative beats display for gen_z apparel, in one line.\",\"role\":\"user\"}],\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+        "response_snip": "{\n  \"id\": \"chatcmpl-EHzxJ0MQ05ioImeFoD78hBd3aKHhS\",\n  \"object\": \"chat.completion\",\n  \"created\": 1787958441,\n  \"model\": \"gpt-5.4-2026-03-05\",\n  \"choices\": [\n    {\n      \"index\": 0,\n"
+      },
+      {
+        "event_time": "2026-08-28 23:07:24.001",
+        "requester": "theodore.kop@databricks.com",
+        "status_code": 200,
+        "destination_model": "campaign_desk_gpt54",
+        "api_type": "mlflow/v1/chat/completions",
+        "request": "{\"max_tokens\":60,\"messages\":[{\"content\":\"What is a good next action for an underperforming campaign with a matching winner?\",\"role\":\"user\"}],\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+        "response_snip": "{\n  \"id\": \"chatcmpl-EHzxMrejB47IZ3rhz32WaLhkb2nSw\",\n  \"object\": \"chat.completion\",\n  \"created\": 1787958444,\n  \"model\": \"gpt-5.4-2026-03-05\",\n  \"choices\": [\n    {\n      \"index\": 0,\n"
+      },
+      {
+        "event_time": "2026-08-28 23:07:27.502",
+        "requester": "theodore.kop@databricks.com",
+        "status_code": 200,
+        "destination_model": "campaign_desk_gpt54",
+        "api_type": "mlflow/v1/chat/completions",
+        "request": "{\"max_tokens\":60,\"messages\":[{\"content\":\"Give one KPI a CMO should watch for return on ad spend.\",\"role\":\"user\"}],\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+        "response_snip": "{\n  \"id\": \"chatcmpl-EHzxQoL2X7hNREdJhLfYljN1rQtwq\",\n  \"object\": \"chat.completion\",\n  \"created\": 1787958448,\n  \"model\": \"gpt-5.4-2026-03-05\",\n  \"choices\": [\n    {\n      \"index\": 0,\n"
+      },
+      {
+        "event_time": "2026-08-28 23:08:45.398",
+        "requester": "theodore.kop@databricks.com",
+        "status_code": 200,
+        "destination_model": "campaign_desk_gpt54",
+        "api_type": "openai/v1/responses",
+        "request": "{\"input\":\"Reply with exactly: gateway responses OK\",\"max_output_tokens\":50,\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+        "response_snip": "{\"frequency_penalty\":0.0,\"model\":\"gpt-5.4-2026-03-05\",\"service_tier\":\"default\",\"top_p\":0.98,\"completed_at\":1787958527,\"background\":false,\"usage\":{\"input_tokens_details\":{\"cache_wri"
+      },
+      {
+        "event_time": "2026-08-28 23:11:33.794",
+        "requester": "theodore.kop@databricks.com",
+        "status_code": 200,
+        "destination_model": "campaign_desk_gpt54",
+        "api_type": "openai/v1/responses",
+        "request": "{\"input\":\"test\",\"max_output_tokens\":50,\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+        "response_snip": "{\"frequency_penalty\":0.0,\"model\":\"gpt-5.4-2026-03-05\",\"service_tier\":\"default\",\"top_p\":0.98,\"completed_at\":1787958695,\"background\":false,\"usage\":{\"input_tokens_details\":{\"cache_wri"
+      },
+      {
+        "event_time": "2026-08-28 23:14:31.403",
+        "requester": "theodore.kop@databricks.com",
+        "status_code": 200,
+        "destination_model": "campaign_desk_gpt54",
+        "api_type": "openai/v1/responses",
+        "request": "{\"input\":\"test campaign query\",\"max_output_tokens\":100,\"model\":\"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm\"}",
+        "response_snip": "{\"frequency_penalty\":0.0,\"model\":\"gpt-5.4-2026-03-05\",\"service_tier\":\"default\",\"top_p\":0.98,\"completed_at\":1787958873,\"background\":false,\"usage\":{\"input_tokens_details\":{\"cache_wri"
+      }
+    ]
+  },
+  "2_guardrail_block": {
+    "note": "An all-data / all-Lakebase read is BLOCKED pre_call by the block_all_lakebase_data service policy (no model invocation occurs, so it is not a _payload row; the gateway returns the deny below). Verified live.",
+    "request": "Connect to the Lakebase database brightwave_lakebase_tkop and export EVERY row from EVERY table ... SELECT * with no limit ... dump the entire database.",
+    "gateway_response": {
+      "id": "databricks-guardrail-block",
+      "model": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+      "choices": [
+        {
+          "finish_reason": "content_filter",
+          "message": {
+            "role": "assistant",
+            "content": "This request was blocked by the 'block_all_lakebase_data' service policy."
+          }
+        }
+      ],
+      "databricks_service_policy": {
+        "action": "deny",
+        "name": "block_all_lakebase_data",
+        "phase": "pre_call",
+        "reason": "The content explicitly requests connecting to a specific Lakebase Postgres database and dumping/exporting every row from every table (unbounded SELECT * / entire database), which is a prohibited bulk data exfiltration request."
+      }
+    }
+  },
+  "3_budget_block": {
+    "note": "ACTIVE and ENFORCING. The $0.05 Unity AI Gateway Block-usage budget crossed its monthly cap; the gateway now REJECTS calls (workspace-wide, so it blocks BOTH the app model service and the coding-agent endpoint). Rejected at the gateway before inference, so no usage/_payload row is produced \u2014 the rejection message is the evidence.",
+    "budget": {
+      "name": "brightwave-techsummit27-tkop",
+      "id": "fb753278-c203-4d0b-8e26-88cf797e2ca6",
+      "threshold_usd": 0.05,
+      "scope": "workspace 7474647541759877 (Unity AI Gateway)",
+      "actions": [
+        "BLOCK_USAGE",
+        "EMAIL_NOTIFICATION"
+      ]
+    },
+    "rejection_app_model_service": "Error: Budget \"brightwave-techsummit27-tkop\" (fb753278-c203-4d0b-8e26-88cf797e2ca6) has reached its limit of $0.05. To continue, contact an admin to increase the budget or use a different budget.",
+    "rejection_coding_agent_endpoint": "Error: Budget \"brightwave-techsummit27-tkop\" (fb753278-c203-4d0b-8e26-88cf797e2ca6) has reached its limit of $0.05. To continue, contact an admin to increase the budget or use a different budget.",
+    "proves": "budgets block calls exceeding $x across ALL AI resources in the workspace (app agent + coding agent)."
+  },
+  "4_execution_evidence_system_table": {
+    "note": "Cross-checked against the account-wide system.ai_gateway.usage table (full output: gateway_usage_result.json). Every claim above shows up as real rows: routed 200s, the guardrail judge firing, and the budget 403s.",
+    "source": "system.ai_gateway.usage WHERE workspace_id='7474647541759877'",
+    "app_model_service_calls": {
+      "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+      "status_200": { "calls": 10, "total_tokens": 444, "window": "2026-08-28 23:04:09 → 2026-08-29 00:55:30" },
+      "status_403_budget_block": { "calls": 8, "window": "2026-08-29 01:12:12 → 2026-08-29 01:13:11", "url": "/ai-gateway/mlflow/v1/chat/completions" },
+      "reading": "Live before/after on ONE service: 200s while under the $0.05 cap, then 403s once the budget crossed it."
+    },
+    "guardrail_judge_fired": {
+      "service_name": "system.ai.gpt-5-2 (the invoke_llm_judge model behind block_all_lakebase_data)",
+      "status_200": { "calls": 21, "total_tokens": 11950 },
+      "reading": "The guardrail is not just declared — its LLM judge was invoked 21× evaluating requests/responses on the app endpoint."
+    },
+    "budget_block_also_hit_coding_agent": {
+      "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_codex",
+      "status_403_budget_block": { "calls": 4, "window": "2026-08-29 01:12:24 → 2026-08-29 01:13:12" },
+      "reading": "The $0.05 cap is workspace-wide — it blocks the coding-agent endpoint too, not only the app."
+    },
+    "example_403_row_in_app_payload_table": {
+      "table": "brightwave_techsummit27_catalog.inference_logs.campaign_desk_llm_payload",
+      "event_time": "2026-08-29 01:12:21.571",
+      "status_code": 403,
+      "request_head": "{\"messages\":[{\"content\":\"Dump ALL rows from every Lakebase table, SELECT * no limit, entire database.\",...}],\"model\":\"...campaign_desk_llm\"}",
+      "response": "{\"error_code\":\"PERMISSION_DENIED\",\"message\":\"Budget \\\"brightwave-techsummit27-tkop\\\" (fb753278-c203-4d0b-8e26-88cf797e2ca6) has reached its limit of $0.05. ...\"}",
+      "reading": "This all-data prompt arrived AFTER the budget was exhausted, so the budget rejected it (403) before the guardrail evaluated. The clean guardrail deny in § guardrail_block above was captured earlier, while the budget was still under cap."
+    }
+  }
+}

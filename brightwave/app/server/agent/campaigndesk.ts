@@ -391,7 +391,11 @@ export async function configureAgentsSdk(ctx: AgentContext): Promise<void> {
   // the streaming gateway masks the 400 as a bare 502). See git history.
   const client = new OpenAI({
     apiKey: bearer,
-    baseURL: `${ctx.databricksHost}/serving-endpoints`,
+    // Build 3: route through the Unity AI Gateway (governed model service) instead
+    // of calling the FM serving endpoint directly. The gateway applies the
+    // inference table + `block_all_lakebase_data` guardrail + budget, and logs
+    // every call. `ctx.model` is the model-service name (…campaign_desk_llm).
+    baseURL: `${ctx.databricksHost}/ai-gateway/openai/v1`,
     maxRetries: 4,
     fetch: async (input, init) => {
       const headers = new Headers(init?.headers);

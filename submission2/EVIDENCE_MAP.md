@@ -16,6 +16,13 @@ Creative retrieval is served **by the Build-1 Lakebase Search index**, not any e
   `search_tsv <@> to_bm25query(to_tsvector('english', :q), 'app.creatives_search_bm25'::regclass) ORDER BY ASC`
   over `app.creatives_search`. Wired to the agent tool `search_creatives` in
   `src/server/agent/campaigndesk.ts`.
+- **Execution — proof it ran (notebook with outputs):** `search_retrieval_validation.ipynb` — a Databricks
+  notebook **executed as a real serverless job** (result_state=SUCCESS) that connects to the same Lakebase
+  Postgres and runs the app's **verbatim** `searchCreatives()` query. Cell outputs show: §1 the Build-1 index
+  (`creatives_search_bm25`, type **`lakebase_bm25`**, over 400 creatives); §2 BM25-ranked hits with scores;
+  §3 `EXPLAIN` → **`Index Scan using creatives_search_bm25 on creatives_search`** (`Served by the Build 1
+  index: True`); §4 the app schema's only search indexes ARE the Build-1 ones (bm25 + ann) — **no separate
+  store**. Source: `search_retrieval_validation.py`; untouched run export: `search_retrieval_validation_run.html`.
 - **Execution — the query:** `search_query.sql` (exact query + the Build-1 index DDL).
 - **Execution — the result:** `search_result.json` — live ranked hits **with BM25 scores**, plus:
   - index metadata: `app.creatives_search_bm25`, **index_type `lakebase_bm25`**, over 400 indexed creatives;

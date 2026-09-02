@@ -1,0 +1,306 @@
+{
+  "evidence": "Build 3 execution evidence \u2014 real rows from system.ai_gateway.usage (account-wide system table, filtered to this workspace). Proves every gateway surface actually handled calls: app model service, coding-agent model service, the guardrail LLM judge, and the governed Slack MCP; plus the live budget block (403).",
+  "source_table": "system.ai_gateway.usage",
+  "workspace_id": "7474647541759877",
+  "captured_at_utc": "2026-08-29",
+  "queries": [
+    {
+      "name": "aggregate_by_service_and_status",
+      "sql": "SELECT service_type, service_name, status_code, COUNT(*) AS calls, COALESCE(SUM(total_tokens),0) AS total_tokens, MIN(event_time) AS first_seen, MAX(event_time) AS last_seen FROM system.ai_gateway.usage WHERE workspace_id='7474647541759877' GROUP BY 1,2,3 ORDER BY service_type, calls DESC",
+      "row_count": 9,
+      "rows": [
+        {
+          "calls": "43",
+          "first_seen": "2026-08-28T16:41:05.000Z",
+          "last_seen": "2026-08-29T01:00:36.000Z",
+          "service_name": "system.ai.slack",
+          "service_type": "MCP_SERVICE",
+          "status_code": "200",
+          "total_tokens": "0"
+        },
+        {
+          "calls": "8",
+          "first_seen": "2026-08-28T16:41:05.000Z",
+          "last_seen": "2026-08-29T01:00:35.000Z",
+          "service_name": "system.ai.slack",
+          "service_type": "MCP_SERVICE",
+          "status_code": "204",
+          "total_tokens": "0"
+        },
+        {
+          "calls": "21",
+          "first_seen": "2026-08-28T23:04:10.000Z",
+          "last_seen": "2026-08-29T01:12:19.000Z",
+          "service_name": "system.ai.gpt-5-2",
+          "service_type": "MODEL_SERVICE",
+          "status_code": "200",
+          "total_tokens": "11950"
+        },
+        {
+          "calls": "13",
+          "first_seen": "2026-08-29T00:09:10.000Z",
+          "last_seen": "2026-08-29T00:21:59.000Z",
+          "service_name": "system.ai.gpt-5-6-luna",
+          "service_type": "MODEL_SERVICE",
+          "status_code": "200",
+          "total_tokens": "519791"
+        },
+        {
+          "calls": "10",
+          "first_seen": "2026-08-28T23:04:09.000Z",
+          "last_seen": "2026-08-29T00:55:30.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "service_type": "MODEL_SERVICE",
+          "status_code": "200",
+          "total_tokens": "444"
+        },
+        {
+          "calls": "8",
+          "first_seen": "2026-08-29T01:12:12.000Z",
+          "last_seen": "2026-08-29T01:13:11.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "service_type": "MODEL_SERVICE",
+          "status_code": "403",
+          "total_tokens": "134"
+        },
+        {
+          "calls": "5",
+          "first_seen": "2026-08-29T01:00:07.000Z",
+          "last_seen": "2026-08-29T01:12:22.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_codex",
+          "service_type": "MODEL_SERVICE",
+          "status_code": "200",
+          "total_tokens": "85317"
+        },
+        {
+          "calls": "4",
+          "first_seen": "2026-08-29T01:12:24.000Z",
+          "last_seen": "2026-08-29T01:13:12.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_codex",
+          "service_type": "MODEL_SERVICE",
+          "status_code": "403",
+          "total_tokens": "0"
+        },
+        {
+          "calls": "3",
+          "first_seen": "2026-08-29T01:12:14.000Z",
+          "last_seen": "2026-08-29T01:12:20.000Z",
+          "service_name": "system.ai.gpt-5-2",
+          "service_type": "MODEL_SERVICE",
+          "status_code": "403",
+          "total_tokens": "0"
+        }
+      ]
+    },
+    {
+      "name": "slack_mcp_tool_calls",
+      "sql": "SELECT event_time, requester, status_code, mcp_metadata.tool_name AS tool, mcp_metadata.server_type AS server_type FROM system.ai_gateway.usage WHERE workspace_id='7474647541759877' AND service_type='MCP_SERVICE' AND service_name='system.ai.slack' AND mcp_metadata.tool_name IS NOT NULL AND mcp_metadata.tool_name <> '' ORDER BY event_time LIMIT 15",
+      "row_count": 15,
+      "rows": [
+        {
+          "event_time": "2026-08-29T00:21:05.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:15.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:15.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:15.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:15.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:22.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:31.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:38.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:46.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:46.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:46.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:56.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:21:56.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:22:27.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        },
+        {
+          "event_time": "2026-08-29T00:22:27.000Z",
+          "requester": "theodore.kop@databricks.com",
+          "server_type": "SYSTEM",
+          "status_code": "200",
+          "tool": "slack_search_public_and_private"
+        }
+      ]
+    },
+    {
+      "name": "budget_block_403_both_services",
+      "sql": "SELECT event_time, service_name, status_code, url FROM system.ai_gateway.usage WHERE workspace_id='7474647541759877' AND status_code=403 AND service_type='MODEL_SERVICE' AND service_name LIKE 'brightwave%' ORDER BY event_time",
+      "row_count": 12,
+      "rows": [
+        {
+          "event_time": "2026-08-29T01:12:12.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:15.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:16.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:19.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:21.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:22.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:24.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_codex",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:25.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_codex",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:26.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_codex",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:12:43.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:13:11.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_llm",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        },
+        {
+          "event_time": "2026-08-29T01:13:12.000Z",
+          "service_name": "brightwave_techsummit27_catalog.brightwave.campaign_desk_codex",
+          "status_code": "403",
+          "url": "https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+        }
+      ]
+    },
+    {
+      "name": "guardrail_judge_invocations",
+      "sql": "SELECT service_name, status_code, COUNT(*) AS judge_calls, SUM(total_tokens) AS tokens FROM system.ai_gateway.usage WHERE workspace_id='7474647541759877' AND service_name='system.ai.gpt-5-2' GROUP BY 1,2 ORDER BY 2",
+      "row_count": 2,
+      "rows": [
+        {
+          "judge_calls": "21",
+          "service_name": "system.ai.gpt-5-2",
+          "status_code": "200",
+          "tokens": "11950"
+        },
+        {
+          "judge_calls": "3",
+          "service_name": "system.ai.gpt-5-2",
+          "status_code": "403",
+          "tokens": ""
+        }
+      ]
+    }
+  ]
+}

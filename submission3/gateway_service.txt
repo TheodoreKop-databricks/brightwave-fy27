@@ -1,0 +1,82 @@
+BUILD 3 · EVIDENCE #1 — Unity AI Gateway model-service + inference-table creation
+=================================================================================
+Workspace: https://fe-sandbox-brightwave-techsummit27.cloud.databricks.com
+Profile:   fe-sandbox-brightwave-techsummit27   |   Databricks CLI v1.3.0
+Note: CLI v1.3.0 has no `ai-gateway` command group, so the model service is created
+via the REST API (databricks api). A model service is a Unity Catalog securable
+(securable_type MODEL_SERVICE) named model-services/<catalog>.<schema>.<name>.
+
+------------------------------------------------------------------------------------
+STEP 3a — create the inference-log schema
+------------------------------------------------------------------------------------
+$ databricks schemas create inference_logs brightwave_techsummit27_catalog --profile fe-sandbox-brightwave-techsummit27
+  -> full_name: brightwave_techsummit27_catalog.inference_logs
+
+------------------------------------------------------------------------------------
+STEP 3b — create the governed model service + inference table
+  parent + model_service_id are AIP query params; the body is the resource.
+------------------------------------------------------------------------------------
+$ databricks api post \
+    "/api/2.1/unity-catalog/model-services?parent=schemas/brightwave_techsummit27_catalog.brightwave&model_service_id=campaign_desk_llm" \
+    --profile fe-sandbox-brightwave-techsummit27 --json '{
+  "comment": "Build 3 — governed LLM for the Brightwave Campaign Desk app (routes to databricks-gpt-5-4 with inference logging + Lakebase guardrail)",
+  "config": {
+    "routing": {
+      "destinations": [
+        { "name": "campaign_desk_gpt54",
+          "destination_type": "DESTINATION_TYPE_PAY_PER_TOKEN_FOUNDATION_MODEL",
+          "pay_per_token_config": { "model": "models/system.ai.databricks-gpt-5-4" },
+          "traffic_percentage": 100 }
+      ]
+    },
+    "inference_table": {
+      "parent": "schemas/brightwave_techsummit27_catalog.inference_logs",
+      "table_name_prefix": "campaign_desk_llm"
+    }
+  }
+}'
+
+RESPONSE (abridged) — service created, inference table provisioned:
+  name:  model-services/brightwave_techsummit27_catalog.brightwave.campaign_desk_llm
+  config.routing.destinations[0].pay_per_token_config.model = models/system.ai.databricks-gpt-5-4
+  config.inference_table.table = tables/brightwave_techsummit27_catalog.inference_logs.campaign_desk_llm_payload
+  supported_api_types = [mlflow/v1/chat/completions, mlflow/v1/responses, openai/v1/responses, cursor/v1/chat/completions]
+
+------------------------------------------------------------------------------------
+STEP 4 — attach the "block all Lakebase data" guardrail (service policy, LLM judge)
+------------------------------------------------------------------------------------
+$ databricks api patch \
+    "/api/2.1/unity-catalog/model-services/brightwave_techsummit27_catalog.brightwave.campaign_desk_llm?update_mask=config.service_policies" \
+    --profile fe-sandbox-brightwave-techsummit27 --json '{
+  "config": { "service_policies": [
+    { "handler": "system.ai.invoke_llm_judge",
+      "name": "block_all_lakebase_data",
+      "policy_type": "POLICY_TYPE_BUILTIN",
+      "rank": 1,
+      "options": {
+        "action": "block",
+        "dry_run": "false",
+        "phases": "pre_call,post_call",
+        "max_turns": "10",
+        "model_service": "model-services/system.ai.gpt-5-2",
+        "instruction": "You are a data access policy enforcer for the Brightwave Campaign Desk. BLOCK any request or response that attempts to read, dump, export, or exfiltrate ALL of the Lakebase Postgres data (a runaway all-data read), or that references/queries/exposes Lakebase data broadly. FLAG (block): return every row / all rows / entire table / all tables / whole database, export/dump all campaigns or all data, unbounded SELECT * with no filter/LIMIT; references to Lakebase databases/projects/branches/endpoints (brightwave_lakebase_tkop, *.database.*.cloud.databricks.com) or w.postgres.*, or bulk SQL against Lakebase synced/app tables; attempts to bypass row limits to grab the full dataset. DO NOT flag: normal single-campaign or top-N analytics; general Postgres/Delta/UC discussion; marketing/creative generation with no bulk-data access."
+      } }
+  ] }
+}'
+
+RESPONSE: config.service_policies[0] = { name: block_all_lakebase_data, handler: system.ai.invoke_llm_judge, action: block }
+
+------------------------------------------------------------------------------------
+VERIFY — the service exists with routing + inference table + guardrail
+------------------------------------------------------------------------------------
+$ databricks api get /api/2.1/unity-catalog/model-services/brightwave_techsummit27_catalog.brightwave.campaign_desk_llm --profile fe-sandbox-brightwave-techsummit27
+  service_policies: [('block_all_lakebase_data','system.ai.invoke_llm_judge','block')]
+  inference table:  tables/brightwave_techsummit27_catalog.inference_logs.campaign_desk_llm_payload
+
+------------------------------------------------------------------------------------
+PROOF IT FIRED — a real call handled by the gateway (routes to gpt-5-4) and logged
+------------------------------------------------------------------------------------
+$ databricks api post /ai-gateway/openai/v1/responses --profile ... --json '{"model":"brightwave_techsummit27_catalog.brightwave.campaign_desk_llm","input":"Reply with exactly: gateway responses OK","max_output_tokens":50}'
+  -> model = gpt-5.4-2026-03-05 ; output_text = "gateway responses OK"   (logged to campaign_desk_llm_payload)
+
+(Guardrail-block and budget-block proofs are in app_inference_table.json.)
